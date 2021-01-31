@@ -124,8 +124,6 @@ def handleComRange(window, start , stop , windowPath):
     time.sleep(70)
     img = pyautogui.screenshot()
     img.save(r'.\result\result-{start}-{stop}.png'.format(start=start , stop=stop))
-    time.sleep(3)
     # close app
     window.Close.click_input()
-    time.sleep(3)
     window.Dialog.Yes.click_input()

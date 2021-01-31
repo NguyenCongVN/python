@@ -51,14 +51,15 @@ def switch_tabs(driver ,tabNum):
     driver.switch_to.window(driver.window_handles[tabNum])
 #  press project button
 def press_project(driver ,wait):
-    try:
-        xpathProjectBtn = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[3]/cfc-panel-container/div/div/cfc-panel/div/div/cfc-panel-container/div/div/cfc-panel[1]/div/div/cfc-panel-container/div/div/cfc-panel[2]/div/div/central-page-area/div/div/pcc-content-viewport/div/div/pangolin-home/cfc-router-outlet/div/ng-component/nav/div[2]/div/div/a[2]'
-        projectBtn = wait.until(EC.element_to_be_clickable((By.XPATH , xpathProjectBtn)))
-        projectBtn.click()
-    except selenium.common.exceptions.ElementClickInterceptedException:
-        clickWithJs(driver, driver.find_element_by_xpath(xpathProjectBtn))
-def checkElementHasClass(driver, Xpath , className):
-    t = driver.find_element_by_xpath(Xpath)
+    # try: //a[text()=' My projects ']
+    cssSelectorProjectBtn = '//a[text()=" My projects "]'
+    projectBtn = wait.until(EC.element_to_be_clickable((By.XPATH , cssSelectorProjectBtn)))
+    projectBtn.click()
+    # except selenium.common.exceptions.ElementClickInterceptedException:
+    #     clickWithJs(driver, projectBtn)
+#     .p6n-dropdown-row:contains("Labels") input
+def checkElementHasClass(driver, CssSelector , className):
+    t = driver.execute_script("return $('{CssSelector}')[0]".format(CssSelector = CssSelector))
     clsVal = t.get_attribute("class")
     print(clsVal)
     if className in clsVal:
@@ -130,7 +131,7 @@ def startComRange(wait , driver , start , stop):
     while True:
         try:
             driver.execute_script('''$($($($('pan-action-bar-button[icon="start"]')).children()).children()).click()''')
-            startXPath = '/html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a'
+            startXPath = '//span[text()="Start"]'
             # /html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a
             start = wait.until(EC.presence_of_element_located((By.XPATH, startXPath)))
             start.click()
@@ -165,7 +166,7 @@ def startComRange(wait , driver , start , stop):
                         print('Start again')
                         driver.execute_script(
                             '''$($($($('pan-action-bar-button[icon="start"]')).children()).children()).click()''')
-                        startXPath = '/html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a'
+                        startXPath = '//span[text()="Start"]'
                         start = wait.until(EC.presence_of_element_located((By.XPATH, startXPath)))
                         start.click()
                         # time.sleep(10)
@@ -181,7 +182,7 @@ def stopComAll(wait , driver):
         try:
             driver.execute_script('''$('#headerCheckbox').click()''')
             driver.execute_script('''$($($($('pan-action-bar-button[icon="stop"]')).children()).children()).click()''')
-            stopXPath = '/html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a'
+            stopXPath = '//span[text()="Stop"]'
             # /html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a
             stop = wait.until(EC.element_to_be_clickable((By.XPATH , stopXPath)))
             stop.click()
@@ -221,8 +222,8 @@ def stopComAll(wait , driver):
                         print('stop again')
                         driver.execute_script(
                             '''$($($($('pan-action-bar-button[icon="stop"]')).children()).children()).click()''')
-                        stopXPath = '/html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a'
-                        stop = wait.until(EC.presence_of_element_located((By.XPATH, stopXPath)))
+                        stopXPath = '//span[text()="Stop"]'
+                        stop = wait.until(EC.element_to_be_clickable((By.XPATH, stopXPath)))
                         stop.click()
                         # time.sleep(10)
                         break
@@ -250,26 +251,27 @@ def enableBill(driver , wait, KDPRange , inputBill):
 
     driver.execute_script(scriptClickProject)
 
-    # click change bill
-    changeBillingXpath = '/html/body/div[4]/div[2]/div/div/div/div/cfc-menu-section/div/cfc-menu-item[2]/a'
-    changeBillingButton = wait.until(EC.presence_of_element_located((By.XPATH, changeBillingXpath)))
+    # click change bill  //span[text()=" Set account "]
+    changeBillingCssSelector = '//span[text()=" Change billing "]'
+    changeBillingButton = wait.until(EC.presence_of_element_located((By.XPATH, changeBillingCssSelector)))
     changeBillingButton.click()
 
     # click select bill
-    billingSelectXpath = '/html/body/div[4]/div[2]/div/mat-dialog-container/ng-component/div[1]/form/cfc-account-picker/mat-form-field'
-    selectButton = wait.until(EC.presence_of_element_located((By.XPATH, billingSelectXpath)))
+    billingSelectCssSelector = '.mat-form-field-infix'
+    selectButton = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, billingSelectCssSelector)))
     selectButton.click()
 
     # select bill
     # billNumber = 1
-    billingXpath = '/html/body/div[4]/div[4]/div/div/div[2]/div[2]/mat-optgroup/mat-option[{billNumber}]'.format(
+    # {billNumber}
+    billingCssSelector = '//mat-optgroup//mat-option[{billNumber}]'.format(
         billNumber=int(inputBill))
-    BillSelect = wait.until(EC.presence_of_element_located((By.XPATH, billingXpath)))
+    BillSelect = wait.until(EC.presence_of_element_located((By.XPATH, billingCssSelector)))
     BillSelect.click()
 
     # accept bill
-    setAccountXpath = '/html/body/div[4]/div[2]/div/mat-dialog-container/ng-component/div[2]/ace-progress-button/div/button'
-    setAccountButton = wait.until(EC.presence_of_element_located((By.XPATH, setAccountXpath)))
+    setAccountCssSelector = '//span[text()=" Set account "]'
+    setAccountButton = wait.until(EC.presence_of_element_located((By.XPATH, setAccountCssSelector)))
     setAccountButton.click()
 
 def chooseProject(driver , wait , KDPRange):
@@ -277,14 +279,14 @@ def chooseProject(driver , wait , KDPRange):
         try:
             # click choose project
             switch_tabs(driver, 1)
-            chooseTabXpath = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[1]/pcc-platform-bar/cfc-platform-bar/div/div[1]/xap-deferred-loader-outlet/pcc-platform-bar-purview-switcher/pcc-purview-switcher/cfc-switcher-button/button'
-            chooseTab = wait.until(EC.element_to_be_clickable((By.XPATH , chooseTabXpath)))
+            chooseTabCssSelector = '.gm1-switcher-button.cfc-switcher-button'
+            chooseTab = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR , chooseTabCssSelector)))
             chooseTab.click()
 
             # Click All button
             try:
-                allXpath = '/html/body/div[3]/div[2]/div/mat-dialog-container/ng-component/div[1]/mat-tab-group/mat-tab-header/div[2]/div/div/div[2]'
-                allButton = wait.until(EC.element_to_be_clickable((By.XPATH , allXpath)))
+                allCssSelector = '//div[text()="All"]'
+                allButton = wait.until(EC.element_to_be_clickable((By.XPATH , allCssSelector)))
                 allButton.click()
             except:
                 allXpath = '/html/body/div[3]/div[2]/div/mat-dialog-container/ng-component/div[1]/mat-tab-group/mat-tab-header/div[2]/div/div/div[3]'
@@ -305,13 +307,13 @@ def chooseProject(driver , wait , KDPRange):
 
             # select button to show label
             # time.sleep(5)
-            collumnButtonXPath = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[3]/cfc-panel-container/div/div/cfc-panel/div/div/cfc-panel-container/div/div/cfc-panel[1]/div/div/cfc-panel-container/div/div/cfc-panel[2]/div/div/central-page-area/div/div/pcc-content-viewport/div/div/ng2-router-root/div/ng1-router-root-loader/xap-deferred-loader-outlet/ng1-router-root-wrapper/ng1-router-root/div/ng-view/pan-panel-container/div/div/div/div/div/div/div/div[1]/div/a'
-            collumnButton = wait.until(EC.element_to_be_clickable((By.XPATH , collumnButtonXPath)))
+            collumnButtonCssSelector = '.goog-flat-menu-button'
+            collumnButton = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR , collumnButtonCssSelector)))
             collumnButton.click()
-            labelXPath = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[3]/cfc-panel-container/div/div/cfc-panel/div/div/cfc-panel-container/div/div/cfc-panel[1]/div/div/cfc-panel-container/div/div/cfc-panel[2]/div/div/central-page-area/div/div/pcc-content-viewport/div/div/ng2-router-root/div/ng1-router-root-loader/xap-deferred-loader-outlet/ng1-router-root-wrapper/ng1-router-root/div/ng-view/pan-panel-container/div/div/div/div/div/div/div/div[1]/div/div/section/div/div/div[1]/div[12]'
-            labelXPathCheck = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[3]/cfc-panel-container/div/div/cfc-panel/div/div/cfc-panel-container/div/div/cfc-panel[1]/div/div/cfc-panel-container/div/div/cfc-panel[2]/div/div/central-page-area/div/div/pcc-content-viewport/div/div/ng2-router-root/div/ng1-router-root-loader/xap-deferred-loader-outlet/ng1-router-root-wrapper/ng1-router-root/div/ng-view/pan-panel-container/div/div/div/div/div/div/div/div[1]/div/div/section/div/div/div[1]/div[12]/input'
-            if checkElementHasClass(driver ,labelXPathCheck , 'ng-empty'):
-                labelButton = driver.find_element_by_xpath(labelXPath)
+            labelCssSelector = '//span[text()="Labels"]'
+            labelCssSelectorCheck = '.p6n-dropdown-row:contains("Labels") input'
+            if checkElementHasClass(driver ,labelCssSelectorCheck , 'ng-empty'):
+                labelButton = wait.until(EC.element_to_be_clickable((By.XPATH ,labelCssSelector)))
                 labelButton.click()
             else:
                 collumnButton.click()
@@ -353,11 +355,11 @@ def disableBill(driver ,wait , KDPRange):
             driver.execute_script(scriptClickProject)
             # time.sleep(5)
             try:
-                disableBillXPath = '/html/body/div[4]/div[3]/div/div/div/div/cfc-menu-section/div/cfc-menu-item[1]/a'
-                disableBillButton = wait.until(EC.element_to_be_clickable((By.XPATH , disableBillXPath)))
+                disableBillCssSelector = '//span[text()=" Disable billing "]'
+                disableBillButton = wait.until(EC.element_to_be_clickable((By.XPATH , disableBillCssSelector)))
                 disableBillButton.click()
             except selenium.common.exceptions.ElementClickInterceptedException:
-                clickWithJs(driver ,driver.find_element_by_xpath(disableBillXPath))
+                clickWithJs(driver ,disableBillButton)
             # driver.execute_script("arguments[0].click();", disableBillButton)
             # time.sleep(3)
             # while True:
@@ -371,11 +373,11 @@ def disableBill(driver ,wait , KDPRange):
             # accept disable bill
             try:
                 #
-                acceptXpath = '/html/body/div[4]/div[3]/div/mat-dialog-container/xap-deferred-loader-outlet/ng-component/div[2]/ace-progress-button/div/button'
-                acceptButton = wait.until(EC.element_to_be_clickable((By.XPATH, acceptXpath)))
+                acceptCssSelector = '//span[text()=" Disable billing "]'
+                acceptButton = wait.until(EC.element_to_be_clickable((By.XPATH, acceptCssSelector)))
                 acceptButton.click()
             except selenium.common.exceptions.ElementClickInterceptedException:
-                clickWithJs(driver ,driver.find_element_by_xpath(acceptXpath))
+                clickWithJs(driver ,acceptButton)
             # fix selenium.common.exceptions.ElementClickInterceptedException
             # driver.execute_script("arguments[0].click();", acceptButton)
             break
@@ -396,21 +398,21 @@ def run(driver, wait , KDPRange , windowPath , inputBill):
     chooseProject(driver , wait , KDPRange)
     # time 1
     startComRange(wait , driver , start , start + 11)
-    thread1 = windowAutoThread(startCom=start , stopCom=(start + 11) , windowPath=windowPath)
-    thread1.start()
-    thread1.join()
+    # thread1 = windowAutoThread(startCom=start , stopCom=(start + 11) , windowPath=windowPath)
+    # thread1.start()
+    # thread1.join()
     stopComAll(wait , driver)
 
     # time 2
-    startComRange(wait, driver, start + 12 , start + 23 )
-    thread2 = windowAutoThread(startCom= ( start + 12 ), stopCom=(start + 23), windowPath=windowPath)
-    thread2.start()
-    thread2.join()
-    stopComAll(wait, driver)
+    # startComRange(wait, driver, start + 12 , start + 23 )
+    # thread2 = windowAutoThread(startCom= ( start + 12 ), stopCom=(start + 23), windowPath=windowPath)
+    # thread2.start()
+    # thread2.join()
+    # stopComAll(wait, driver)
 
     # time 3
     startComRange(wait, driver, start + 24, start + 31)
-    thread3 = windowAutoThread(startCom=(start + 24), stopCom=(start + 31), windowPath=windowPath)
-    thread3.start()
-    thread3.join()
+    # thread3 = windowAutoThread(startCom=(start + 24), stopCom=(start + 31), windowPath=windowPath)
+    # thread3.start()
+    # thread3.join()
     disableBill(driver , wait , KDPRange)
