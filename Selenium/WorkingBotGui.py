@@ -1,10 +1,10 @@
+import subprocess
 from tkinter import *
 import tkinter.ttk as ttk
 import tkinter.font as tkFont
-import AutomationWorking
-import WindowAutomationPart
 import traceback
 from selenium.webdriver.support.wait import WebDriverWait
+import AutomationWorking
 listProject = {}
 def insertItemToTree(item):
     tree.insert('', 'end', values=item)
@@ -15,32 +15,44 @@ def EnterProjectRangeAndPath(item , listProject):
 
 
 def run(inputPathCom , inputPathCode , inputPathChrome , inputBill):
-    try:
-        i = 0
-        for line in tree.get_children():
+    i = 0
+    for line in tree.get_children():
+        try:
             if i == 0:
                 driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , True)
                 i = i + 1
             else:
                 driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , False)
             wait = WebDriverWait(driver, 40)
-            [KDPrange , comName , isDone ] = tree.item(line)['values']
-            AutomationWorking.run(driver , wait ,KDPrange , inputPathCom+comName , inputBill)
+            [KDPrange , comName , exceptCom ,isDone ] = tree.item(line)['values']
+            AutomationWorking.run(driver , wait ,KDPrange , inputPathCom+comName , inputBill , exceptCom)
             tree.item(line)['values'] = [KDPrange , comName , 'True']
+            AutomationWorking.waitThreadAndJoin(5)
             for handle in driver.window_handles:
                 driver.switch_to.window(handle)
                 driver.close()
-    except:
-        print(traceback.format_exc())
-        while True:
-            try:
-                driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode)
-                wait = WebDriverWait(driver, 40)
-                AutomationWorking.disableBill(driver, wait, KDPrange)
-                break
-            except:
-                continue
-header = ['Range', 'Path', 'Done']
+        except:
+            print(traceback.format_exc())
+            print('exception happend and cant handle it')
+            while True:
+                try:
+                    endDriver = AutomationWorking.InitRun(inputPathChrome, inputPathCode, False)
+                    wait = WebDriverWait(endDriver, 40)
+                    AutomationWorking.disableBill(endDriver, wait, KDPrange)
+                    # need quit the chrome
+                    for handle in endDriver.window_handles:
+                        endDriver.switch_to.window(handle)
+                        endDriver.close()
+                    break
+                except:
+                    print(traceback.format_exc)
+                    continue
+            AutomationWorking.waitThreadAndJoin(5)
+            for handle in driver.window_handles:
+                driver.switch_to.window(handle)
+                driver.close()
+            continue
+header = ['Range', 'Path','Except' ,'Done']
 root = Tk()
 root.title('Stop-AutomationBot')
 root.geometry('400x600')
@@ -83,7 +95,16 @@ labelPath = Label(rangeInputFrame2, text='Name')
 inputPath = Entry(rangeInputFrame2)
 labelPath.pack(side=LEFT , anchor=NW , padx=20)
 inputPath.pack(side=RIGHT , anchor=NE , padx=40)
-AddButton = Button(root , text='add project' , command=lambda: insertItemToTree([inputRange.get() , inputPath.get(),'false']))
+
+
+rangeInputFrame7 = Frame(root)
+rangeInputFrame7.pack(fill='both', expand=FALSE)
+labelExcept7 = Label(rangeInputFrame7, text='Except')
+inputExcept7 = Entry(rangeInputFrame7)
+labelExcept7.pack(side=LEFT , anchor=NW , padx=20)
+inputExcept7.pack(side=RIGHT , anchor=NE , padx=40)
+
+AddButton = Button(root , text='add project' , command=lambda: insertItemToTree([inputRange.get() , inputPath.get() , inputExcept7.get() ,'false']))
 AddButton.pack()
 
 rangeInputFrame3 = Frame(root)

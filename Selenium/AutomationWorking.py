@@ -2,6 +2,7 @@ import requests
 import time
 import selenium
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.keys import Keys
@@ -11,20 +12,41 @@ import WindowAutomationPart
 import traceback
 import threading
 class windowAutoThread (threading.Thread):
-    def __init__(self , windowPath , startCom , stopCom):
+    def __init__(self , windowPath , startCom , stopCom ,exceptComOut):
         threading.Thread.__init__(self)
         self.windowPath = windowPath
         self.startCom = startCom
         self.stopCom = stopCom
+        self.exceptComOut = exceptComOut
     def run(self):
         time.sleep(40)
         # # back to window working
+        print('opening window')
         window = WindowAutomationPart.OpenWindow(self.windowPath)
-        WindowAutomationPart.handleComRange(window, self.startCom, self.stopCom, self.windowPath)
+        print('handling window')
+        WindowAutomationPart.handleComRange(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut)
+class waitThread (threading.Thread):
+    def __init__(self , timeWait):
+        threading.Thread.__init__(self)
+        self.timeWait = timeWait
+    def run(self):
+        time.sleep(self.timeWait)
+        # # back to window working
 
+def waitThreadAndJoin(time):
+    thread = waitThread(timeWait= time)
+    thread.start()
+    thread.join()
+    
 def clickWithJs(driver ,buttonElement):
     driver.execute_script("arguments[0].click();", buttonElement)
 
+def clickHandlerException(driver , buttonElement):
+    try:
+        buttonElement.click()
+    except selenium.common.exceptions.ElementClickInterceptedException :
+        print('error interception => handle with js function')
+        clickWithJs(driver, buttonElement)
 def open_driver(path):
     options = Options()
     options.binary_location = path
@@ -40,24 +62,23 @@ def open_driver(path):
     driver = webdriver.Chrome(executable_path=r'D:\python\chromedriver80\chromedriver.exe', options=options)
     driver.maximize_window()
     return driver
-
 #
 def press_an_key_with_control(driver ,wait, key):
     wait.until()
     action = ActionChains(driver)
     action.key_down(Keys.CONTROL).send_keys(key).key_up(Keys.CONTROL).perform()
+
 # switch tab
 def switch_tabs(driver ,tabNum):
     driver.switch_to.window(driver.window_handles[tabNum])
+
 #  press project button
 def press_project(driver ,wait):
-    # try: //a[text()=' My projects ']
-    cssSelectorProjectBtn = '//a[text()=" My projects "]'
+    # try: //a[text()=' My projects '] contains(text(),"My projects")
+    cssSelectorProjectBtn = '//a[contains(text(),"My projects")]'
     projectBtn = wait.until(EC.element_to_be_clickable((By.XPATH , cssSelectorProjectBtn)))
-    projectBtn.click()
-    # except selenium.common.exceptions.ElementClickInterceptedException:
-    #     clickWithJs(driver, projectBtn)
-#     .p6n-dropdown-row:contains("Labels") input
+    clickHandlerException(driver , projectBtn)
+
 def checkElementHasClass(driver, CssSelector , className):
     t = driver.execute_script("return $('{CssSelector}')[0]".format(CssSelector = CssSelector))
     clsVal = t.get_attribute("class")
@@ -115,13 +136,14 @@ def InitRun(pathChrome , pathCode , wantCopy):
 def startComRange(wait , driver , start , stop):
     # select computer
     # add sleep to fix
-    time.sleep(3)
+    # time.sleep(3)
     for i in range(start, stop + 1):
-        driver.execute_script('''
+        result = driver.execute_script('''
         $($('.p6n-tag-value')).each(function(idx ,item){{
-        if($(item).text().includes('{number}'))
+        if($(item).text() == ': {number}')
         {{$($($($($($($($($($(item).parent()).parent()).parent()).parent()).parent()).parent()).parent()).parent()).find('[type="checkbox"]')).click()}}
         }})'''.format(number=i))
+        print(result)
 
     # run virtual Com
 
@@ -131,21 +153,16 @@ def startComRange(wait , driver , start , stop):
     while True:
         try:
             driver.execute_script('''$($($($('pan-action-bar-button[icon="start"]')).children()).children()).click()''')
-            startXPath = '//span[text()="Start"]'
-            # /html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a
-            start = wait.until(EC.presence_of_element_located((By.XPATH, startXPath)))
-            start.click()
-            break
-            # time.sleep(5)
-            # while True:
-            #     try:
-            #         check = driver.find_element_by_xpath(startXPath)
-            #         start.click()
-            #         # time.sleep(3)
-            #     except:
-            #         print('check is disappear')
-            #         break
-            # break
+            startXPath = '//a//span[contains(text(),"Start")]'
+            start = wait.until(EC.element_to_be_clickable((By.XPATH, startXPath)))
+            clickHandlerException(driver , start)
+            waitThreadAndJoin(5)
+            try:
+                startCheck = WebDriverWait(driver,1).until(EC.element_to_be_clickable((By.XPATH, startXPath)))
+                print('click again because it\'s appeared')
+                clickHandlerException(driver , startCheck)
+            except:
+                break
         except:
             continue
     # check if success if not start again
@@ -162,47 +179,50 @@ def startComRange(wait , driver , start , stop):
         else:
             if 'failed' in elementText.lower():
                 while True:
-                    try:
-                        print('Start again')
-                        driver.execute_script(
+                    # try:
+                    print('Start again')
+                    driver.execute_script(
                             '''$($($($('pan-action-bar-button[icon="start"]')).children()).children()).click()''')
-                        startXPath = '//span[text()="Start"]'
-                        start = wait.until(EC.presence_of_element_located((By.XPATH, startXPath)))
-                        start.click()
-                        # time.sleep(10)
-                        break
+                    startXPath = '//a//span[contains(text(),"Start")]'
+                    start = wait.until(EC.element_to_be_clickable((By.XPATH, startXPath)))
+                    clickHandlerException(driver , start)
+                    waitThreadAndJoin(5)
+                    try:
+                        startCheck = WebDriverWait(driver, 1).until(
+                            EC.element_to_be_clickable((By.XPATH, startXPath)))
+                        print('click again because it\'s appeared')
+                        clickHandlerException(driver, startCheck)
                     except:
-                        print('Failed Start again')
-                        continue
+                        break
+                    # except:
+                    #     print('Failed Start again')
+                    #     continue
             else:
                 continue
 # Stop
 def stopComAll(wait , driver):
     while True:
         try:
-            driver.execute_script('''$('#headerCheckbox').click()''')
+            headerXpath = '//*[@id = "headerCheckbox"]//ancestor::th'
+            header = wait.until(EC.element_to_be_clickable((By.XPATH, headerXpath)))
+            clickHandlerException(driver , header)
             driver.execute_script('''$($($($('pan-action-bar-button[icon="stop"]')).children()).children()).click()''')
-            stopXPath = '//span[text()="Stop"]'
+            stopXPath = '//a//span[contains(text(),"Stop")]'
+            # contains(text(),"Stop")
             # /html/body/div[6]/md-dialog/md-dialog/md-dialog-actions/pan-modal-actions/pan-modal-action[2]/a
             stop = wait.until(EC.element_to_be_clickable((By.XPATH , stopXPath)))
-            stop.click()
-            break
-            # driver.execute_script("arguments[0].click();", stop)
-            # time.sleep(3)
-            # while True:
-            #     try:
-            #         check = driver.find_element_by_xpath(stopXPath)
-            #         stop.click()
-            #         # time.sleep(3)
-            #     except:
-            #         print('check is disappear')
-            #         break
+            clickHandlerException(driver , stop)
+            waitThreadAndJoin(5)
+            try:
+                stopCheck = WebDriverWait(driver, 1).until(EC.element_to_be_clickable((By.XPATH, stopXPath)))
+                print('click again because it\'s appeared')
+                clickHandlerException(driver, stopCheck)
+            except:
+                break
         except (selenium.common.exceptions.TimeoutException , selenium.common.exceptions.NoSuchElementException):
             traceback.print_exc()
             driver.refresh()
-            # time.sleep(5)
             addJqueryToHtml(driver)
-            # time.sleep(5)
             continue
     # check if success if not stop again
     elementText = ''
@@ -222,9 +242,9 @@ def stopComAll(wait , driver):
                         print('stop again')
                         driver.execute_script(
                             '''$($($($('pan-action-bar-button[icon="stop"]')).children()).children()).click()''')
-                        stopXPath = '//span[text()="Stop"]'
+                        stopXPath = '//span[contains(text(),"Stop")]'
                         stop = wait.until(EC.element_to_be_clickable((By.XPATH, stopXPath)))
-                        stop.click()
+                        clickHandlerException(driver , stop)
                         # time.sleep(10)
                         break
                     except:
@@ -236,43 +256,50 @@ def stopComAll(wait , driver):
     driver.execute_script('''$('#headerCheckbox').click()''')
 
 def enableBill(driver , wait, KDPRange , inputBill):
-    press_project(driver ,wait)
-    # choose project and enable bill
-    wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR , '[aria-label="Table of projects"]')))
-    scriptClickProject = '''
-        var target;
-        $('.cfc-inline-flex-container').each(function(idx){{
-        txt = $(this).text();
-        if(txt.includes('{KDPRange}')){{
-        target = $($(this).parent()).parent()
-        }}}});
-        $($($(target).children()[4]).find('button')).click();
-        '''.format(KDPRange=KDPRange)
+    while True:
+        try:
+            press_project(driver ,wait)
+            # choose project and enable bill
+            wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR , '[aria-label="Table of projects"]')))
+            scriptClickProject = '''
+                var target;
+                $('.cfc-inline-flex-container').each(function(idx){{
+                txt = $(this).text();
+                if(txt.includes('{KDPRange}')){{
+                target = $($(this).parent()).parent()
+                }}}});
+                $($($(target).children()[4]).find('button')).click();
+                '''.format(KDPRange=KDPRange)
 
-    driver.execute_script(scriptClickProject)
+            driver.execute_script(scriptClickProject)
 
-    # click change bill  //span[text()=" Set account "]
-    changeBillingCssSelector = '//span[text()=" Change billing "]'
-    changeBillingButton = wait.until(EC.presence_of_element_located((By.XPATH, changeBillingCssSelector)))
-    changeBillingButton.click()
+            # click change bill  //span[text()=" Set account "]   contains(text(),"Change billing")
+            changeBillingCssSelector = '//span[contains(text(),"Change billing")]'
+            changeBillingButton = wait.until(EC.presence_of_element_located((By.XPATH, changeBillingCssSelector)))
+            clickHandlerException(driver, changeBillingButton)
 
-    # click select bill
-    billingSelectCssSelector = '.mat-form-field-infix'
-    selectButton = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, billingSelectCssSelector)))
-    selectButton.click()
+            # click select bill
+            billingSelectCssSelector = '.mat-form-field-infix'
+            selectButton = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, billingSelectCssSelector)))
+            clickHandlerException(driver, selectButton)
 
-    # select bill
-    # billNumber = 1
-    # {billNumber}
-    billingCssSelector = '//mat-optgroup//mat-option[{billNumber}]'.format(
-        billNumber=int(inputBill))
-    BillSelect = wait.until(EC.presence_of_element_located((By.XPATH, billingCssSelector)))
-    BillSelect.click()
+            # select bill
+            # billNumber = 1
+            # {billNumber}
+            billingCssSelector = '//mat-optgroup//mat-option[{billNumber}]'.format(
+                billNumber=int(inputBill))
+            BillSelect = wait.until(EC.presence_of_element_located((By.XPATH, billingCssSelector)))
+            clickHandlerException(driver, BillSelect)
 
-    # accept bill
-    setAccountCssSelector = '//span[text()=" Set account "]'
-    setAccountButton = wait.until(EC.presence_of_element_located((By.XPATH, setAccountCssSelector)))
-    setAccountButton.click()
+            # accept bill contains(text(),"Set account")
+            setAccountCssSelector = '//span[contains(text(),"Set account")]'
+            setAccountButton = wait.until(EC.presence_of_element_located((By.XPATH, setAccountCssSelector)))
+            clickHandlerException(driver, setAccountButton)
+            break
+        except selenium.common.exceptions.TimeoutException:
+            driver.refresh()
+            addJqueryToHtml(driver)
+            continue
 
 def chooseProject(driver , wait , KDPRange):
     while True:
@@ -281,18 +308,17 @@ def chooseProject(driver , wait , KDPRange):
             switch_tabs(driver, 1)
             chooseTabCssSelector = '.gm1-switcher-button.cfc-switcher-button'
             chooseTab = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR , chooseTabCssSelector)))
-            chooseTab.click()
+            clickHandlerException(driver, chooseTab)
 
-            # Click All button
+            # Click All button contains(text(),"All")
             try:
-                allCssSelector = '//div[text()="All"]'
+                allCssSelector = '//div[contains(text(),"All")]'
                 allButton = wait.until(EC.element_to_be_clickable((By.XPATH , allCssSelector)))
-                allButton.click()
+                clickHandlerException(driver, allButton)
             except:
                 allXpath = '/html/body/div[3]/div[2]/div/mat-dialog-container/ng-component/div[1]/mat-tab-group/mat-tab-header/div[2]/div/div/div[3]'
                 allButton = wait.until(EC.element_to_be_clickable((By.XPATH, allXpath)))
-                allButton.click()
-
+                clickHandlerException(driver, allButton)
             # Select project in tab 1
             # time.sleep(3)
             wait.until(EC.visibility_of_element_located((By.TAG_NAME, 'cfc-tree-node-expander')))
@@ -309,21 +335,23 @@ def chooseProject(driver , wait , KDPRange):
             # time.sleep(5)
             collumnButtonCssSelector = '.goog-flat-menu-button'
             collumnButton = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR , collumnButtonCssSelector)))
-            collumnButton.click()
-            labelCssSelector = '//span[text()="Labels"]'
+            clickHandlerException(driver, collumnButton)
+            labelCssSelector = '//span[contains(text(),"Labels")]'
             labelCssSelectorCheck = '.p6n-dropdown-row:contains("Labels") input'
             if checkElementHasClass(driver ,labelCssSelectorCheck , 'ng-empty'):
+                print('waiting to click label')
                 labelButton = wait.until(EC.element_to_be_clickable((By.XPATH ,labelCssSelector)))
-                labelButton.click()
+                clickHandlerException(driver, labelButton)
             else:
-                collumnButton.click()
+                print('no need to enable label again')
+                clickHandlerException(driver, collumnButton)
             # sort the column
             # ignore sort collumn
             # sortLabelXPath = '/html/body/pan-shell/pcc-shell/cfc-panel-container/div/div/cfc-panel[1]/div[1]/div/div[3]/cfc-panel-container/div/div/cfc-panel/div/div/cfc-panel-container/div/div/cfc-panel[1]/div/div/cfc-panel-container/div/div/cfc-panel[2]/div/div/central-page-area/div/div/pcc-content-viewport/div/div/ng2-router-root/div/ng1-router-root-loader/xap-deferred-loader-outlet/ng1-router-root-wrapper/ng1-router-root/div/ng-view/pan-panel-container/div/div/div/div/div/div/div/div[2]/ng-transclude/div/table/thead/tr/th[8]/span[1]/a'
             # sortButton = wait.until(EC.element_to_be_clickable((By.XPATH, sortLabelXPath)))
             # sortButton.click()
             break
-        except selenium.common.exceptions.TimeoutException as e:
+        except (selenium.common.exceptions.TimeoutException , selenium.common.exceptions.ElementNotInteractableException) as e:
             print('Cant find computers')
             driver.execute_script("window.history.go(-1)")
             driver.refresh()
@@ -353,13 +381,10 @@ def disableBill(driver ,wait , KDPRange):
                     '''.format(KDPRange=KDPRange)
             print('select bill to disable')
             driver.execute_script(scriptClickProject)
-            # time.sleep(5)
-            try:
-                disableBillCssSelector = '//span[text()=" Disable billing "]'
-                disableBillButton = wait.until(EC.element_to_be_clickable((By.XPATH , disableBillCssSelector)))
-                disableBillButton.click()
-            except selenium.common.exceptions.ElementClickInterceptedException:
-                clickWithJs(driver ,disableBillButton)
+            # time.sleep(5) contains(text(),"Disable billing")
+            disableBillCssSelector = '//span[contains(text(),"Disable billing")]'
+            disableBillButton = wait.until(EC.element_to_be_clickable((By.XPATH , disableBillCssSelector)))
+            clickHandlerException(driver, disableBillButton)
             # driver.execute_script("arguments[0].click();", disableBillButton)
             # time.sleep(3)
             # while True:
@@ -371,15 +396,10 @@ def disableBill(driver ,wait , KDPRange):
             #         print('check is disappear')
             #         break
             # accept disable bill
-            try:
-                #
-                acceptCssSelector = '//span[text()=" Disable billing "]'
-                acceptButton = wait.until(EC.element_to_be_clickable((By.XPATH, acceptCssSelector)))
-                acceptButton.click()
-            except selenium.common.exceptions.ElementClickInterceptedException:
-                clickWithJs(driver ,acceptButton)
-            # fix selenium.common.exceptions.ElementClickInterceptedException
-            # driver.execute_script("arguments[0].click();", acceptButton)
+            # contains(text(),"Disable billing")
+            acceptCssSelector = '//span[contains(text(),"Disable billing")]'
+            acceptButton = wait.until(EC.element_to_be_clickable((By.XPATH, acceptCssSelector)))
+            clickHandlerException(driver, acceptButton)
             break
         except Exception as e:
             if tryCount < 5:
@@ -389,30 +409,37 @@ def disableBill(driver ,wait , KDPRange):
                 raise e
 
 #C:\Users\Admin\Documents\GGC KDP\PO Ho Chieu 1 KDP thang 1 2021 1345-2112\PO Ho Chieu 1\GoogleChromePortable.exe
-def run(driver, wait , KDPRange , windowPath , inputBill):
+def run(driver, wait , KDPRange , windowPath , inputBill , exceptCom):
     [start , stop] = KDPRange.split('-')
     start = int(start)
     stop = int(stop)
-    switch_tabs(driver, 0)
-    enableBill(driver , wait , KDPRange , inputBill)
-    chooseProject(driver , wait , KDPRange)
+    exceptComOut = exceptCom.split(',')
+    # switch_tabs(driver, 0)
+    # enableBill(driver , wait , KDPRange , inputBill)
+    # chooseProject(driver , wait , KDPRange)
     # time 1
-    startComRange(wait , driver , start , start + 11)
-    # thread1 = windowAutoThread(startCom=start , stopCom=(start + 11) , windowPath=windowPath)
+    # startComRange(wait , driver , start , start + 11)
+    # thread1 = windowAutoThread(startCom=start , stopCom=(start + 11) , windowPath=windowPath , exceptComOut=exceptComOut)
     # thread1.start()
     # thread1.join()
-    stopComAll(wait , driver)
+    # stopComAll(wait , driver)
 
     # time 2
     # startComRange(wait, driver, start + 12 , start + 23 )
-    # thread2 = windowAutoThread(startCom= ( start + 12 ), stopCom=(start + 23), windowPath=windowPath)
+    # thread2 = windowAutoThread(startCom= ( start + 12 ), stopCom=(start + 23), windowPath=windowPath , exceptComOut=exceptComOut)
     # thread2.start()
     # thread2.join()
     # stopComAll(wait, driver)
 
     # time 3
-    startComRange(wait, driver, start + 24, start + 31)
-    # thread3 = windowAutoThread(startCom=(start + 24), stopCom=(start + 31), windowPath=windowPath)
+    # startComRange(wait, driver, start + 24, start + 31)
+    # thread3 = windowAutoThread(startCom=(start + 24), stopCom=(start + 31), windowPath=windowPath , exceptComOut=exceptComOut)
     # thread3.start()
     # thread3.join()
-    disableBill(driver , wait , KDPRange)
+
+    # disableBill(driver , wait , KDPRange)
+
+    # customThread = windowAutoThread(startCom=start, stopCom=(start + 32), windowPath=windowPath, exceptComOut=exceptComOut)
+    # customThread.start()
+    # customThread.join()
+    # # stopComAll(wait, driver)
