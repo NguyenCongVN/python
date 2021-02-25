@@ -9,8 +9,9 @@ from email.mime.multipart import MIMEMultipart
 import AutomationWorking
 import os
 import smtplib
+import random
 pyautogui.FAILSAFE = False
-
+cap = 0
 def InitSendMail(userName , passWord):
     count = 0
     while count < 5:
@@ -97,8 +98,8 @@ def pasteFile(window , number , start):
             item.click_input(button='left', coords=(None, None))
             try:
                 staticPanel = window['Input Capture WindowPane']
-                staticPanel.move_mouse_input(coords=(400, 400))
-                staticPanel.double_click_input(button='left', coords=(None, None))
+                # staticPanel.move_mouse_input(coords=(400, 400))
+                staticPanel.double_click_input(button='left', coords=(1500, 500))
                 staticPanel.type_keys('^v')
             except:
                 pass
@@ -127,8 +128,9 @@ def closeOpeningWindow(window , number , start):
                 item.click_input(button='left', coords=(None, None))
                 try:
                     staticPanel = window['Input Capture WindowPane']
-                    staticPanel.move_mouse_input(coords=(400, 400))
-                    staticPanel.double_click_input(button='left', coords=(None, None))
+                    # staticPanel.move_mouse_input(coords=(400, 400))
+                    staticPanel.double_click_input(button='left', coords=(1200, 700))
+                    staticPanel.click_input(button='left', coords=(1200, 700))
                     staticPanel.type_keys('%{F4}')
                     break
                 except:
@@ -159,6 +161,7 @@ def openFile(window , number):
         except:
             count = count + 1
             continue
+
 def handleComRange(window, start , stop , windowPath , exceptComOut):
     try:
         startComputer(window, start, stop ,exceptComOut)
@@ -203,3 +206,166 @@ def handleComRange(window, start , stop , windowPath , exceptComOut):
     smtpServer = InitSendMail('nguyenconggg1', 'hocngaydi123')
     SendMail(r'.\result\result-{start}-{stop}.png'.format(start=start , stop=stop) ,'{start}-{stop}'.format(start=start,stop=stop) , 'nguyenconggg1@gmail.com'
              , 'chubodoi.2910@gmail.com' , smtpServer)
+
+def detectImageAndClickCenterSingle(imagePath):
+    r = None
+    count = 0
+    while r is None:
+        try:
+            if count == 5:
+                break
+            r = pyautogui.locateOnScreen(imagePath, confidence=0.8)
+            point = pyautogui.center(r)
+            pointx, pointy = point
+            pyautogui.click(pointx, pointy)
+        except:
+            count = count + 1
+            continue
+
+def detectImageAndClickCenter(imagePath):
+    r = None
+    count = 0
+    while r is None:
+        try:
+            if count == 5:
+                captureScreen(random.randrange(1 , 100 , 1))
+                return 1
+            r = pyautogui.locateOnScreen(imagePath, confidence=0.8)
+            point = pyautogui.center(r)
+            pointx, pointy = point
+            pyautogui.doubleClick(pointx, pointy)
+            return 0
+        except:
+            count = count + 1
+            continue
+
+
+def openFileCustomised(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    if detectImageAndClickCenter('./ChiHa/codeRun1.jpg') == 1:
+        detectImageAndClickCenter('./ChiHa/codeRun.jpg')
+
+def enterCodeAndOke(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenter('./ChiHa/enterCode1.jpg')
+    AutomationWorking.waitThreadAndJoin(2)
+    pyautogui.write(str(number), interval=0.25)
+    AutomationWorking.waitThreadAndJoin(2)
+    detectImageAndClickCenter('./ChiHa/OkeButton.jpg')
+
+def pressOptionFirefox(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenter('./ChiHa/OptionButton.jpg')
+
+def pressHelpButton(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenter('./ChiHa/helpButton.jpg')
+    detectImageAndClickCenterSingle('./ChiHa/helpButton.jpg')
+
+def pressAboutButton(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenter('./ChiHa/AboutFireFoxButton.jpg')
+
+def pressCheckUpdateButton(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenter('./ChiHa/CheckUpdateButton.jpg')
+    AutomationWorking.waitThreadAndJoin(5)
+    detectImageAndClickCenter('./ChiHa/updateButton.jpg')
+    AutomationWorking.waitThreadAndJoin(5)
+    pyautogui.click()
+def captureScreen(number):
+    im1 = pyautogui.screenshot()
+    im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
+    AutomationWorking.waitThreadAndJoin(1)
+def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , procedure):
+    [startCom , close , paste , open , enterCode , HandleFirefox] = procedure
+    if startCom == 1:
+        try:
+            startComputer(window, start, stop ,exceptComOut)
+        except:
+            # print(traceback.format_exc())
+            # close app
+            p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
+            p.wait()
+            print(p.returncode)
+            OpenWindow(windowPath)
+            AutomationWorking.waitThreadAndJoin(5)
+            startComputer(window, start, stop , exceptComOut)
+        print('start done')
+        AutomationWorking.waitThreadAndJoin(20)
+    if close == 1:
+        for i in range(start, stop + 1):
+            if str(i) in exceptComOut:
+                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+                closeOpeningWindow(window, replaceCom , start)
+            else:
+                closeOpeningWindow(window, i, start)
+        AutomationWorking.waitThreadAndJoin(10)
+    if paste == 1:
+        for i in range(start, stop + 1):
+            if str(i) in exceptComOut:
+                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+                pasteFile(window, replaceCom, start)
+            else:
+                pasteFile(window, i , start )
+        AutomationWorking.waitThreadAndJoin(20)
+    if open == 1:
+        for i in range(start, stop + 1):
+            if str(i) in exceptComOut:
+                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+                openFileCustomised(window, replaceCom)
+            else:
+                openFileCustomised(window, i )
+    if enterCode == 1:
+        for i in range(start, stop + 1):
+            if str(i) in exceptComOut:
+                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+                enterCodeAndOke(window, replaceCom)
+            else:
+                enterCodeAndOke(window, i )
+    if HandleFirefox == 1:
+        for i in range(start, stop + 1):
+            if str(i) in exceptComOut:
+                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+                pressOptionFirefox(window, replaceCom)
+                AutomationWorking.waitThreadAndJoin(10)
+                pressHelpButton(window ,replaceCom )
+                AutomationWorking.waitThreadAndJoin(5)
+                pressAboutButton(window , replaceCom)
+                AutomationWorking.waitThreadAndJoin(5)
+                pressCheckUpdateButton(window, replaceCom)
+            else:
+                pressOptionFirefox(window, i)
+                AutomationWorking.waitThreadAndJoin(6)
+                pressHelpButton(window, i)
+                AutomationWorking.waitThreadAndJoin(2)
+                pressAboutButton(window, i)
+                AutomationWorking.waitThreadAndJoin(2)
+                pressCheckUpdateButton(window, i)
+    p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
+    p.wait()
+    print(p.returncode)
