@@ -429,31 +429,6 @@ def run(KDPRange , windowPath , exceptCom , procedure):
     start = int(start)
     stop = int(stop)
     exceptComOut = exceptCom.split(',')
-    # switch_tabs(driver, 0)
-    # enableBill(driver , wait , KDPRange , inputBill)
-    # chooseProject(driver , wait , KDPRange)
-    # time 1
-    # startComRange(wait , driver , start , start + 11)
-    # thread1 = windowAutoThread(startCom=start , stopCom=(start + 11) , windowPath=windowPath , exceptComOut=exceptComOut)
-    # thread1.start()
-    # thread1.join()
-    # stopComAll(wait , driver)
-
-    # time 2
-    # startComRange(wait, driver, start + 12 , start + 23 )
-    # thread2 = windowAutoThread(startCom= ( start + 12 ), stopCom=(start + 23), windowPath=windowPath , exceptComOut=exceptComOut)
-    # thread2.start()
-    # thread2.join()
-    # stopComAll(wait, driver)
-
-    # time 3
-    # startComRange(wait, driver, start + 24, start + 31)
-    # thread3 = windowAutoThread(startCom=(start + 24), stopCom=(start + 31), windowPath=windowPath , exceptComOut=exceptComOut)
-    # thread3.start()
-    # thread3.join()
-
-    # disableBill(driver , wait , KDPRange)
-
     customThread = windowAutoThreadCustomized(startCom=start, stopCom=stop, windowPath=windowPath, exceptComOut=exceptComOut , procedure=procedure)
     customThread.start()
     customThread.join()

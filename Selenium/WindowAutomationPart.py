@@ -3,6 +3,7 @@ import traceback
 from subprocess import Popen
 from pywinauto import Desktop
 import pyautogui
+import pywinauto
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
@@ -10,8 +11,23 @@ import AutomationWorking
 import os
 import smtplib
 import random
+import xlrd
+from tkinter import Tk
 pyautogui.FAILSAFE = False
 cap = 0
+
+def copyStringToClipboard(text):
+    r = Tk()
+    r.withdraw()
+    r.clipboard_clear()
+    r.clipboard_append(text)
+    r.update()  # now it stays on the clipboard after the window is closed
+    r.destroy()
+
+def findUserAndPassInCsv(id , csv_path):
+    workbook = xlrd.open_workbook(csv_path)
+    worksheet = workbook.sheet_by_name('KU')
+    return [worksheet.cell(id, 1 ).value , worksheet.cell(id, 4 ).value]
 def InitSendMail(userName , passWord):
     count = 0
     while count < 5:
@@ -297,12 +313,42 @@ def pressCheckUpdateButton(window , number):
     detectImageAndClickCenter('./ChiHa/updateButton.jpg')
     AutomationWorking.waitThreadAndJoin(5)
     pyautogui.click()
+
+def pressEmailPasswordAndLogin(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    [email , password] = findUserAndPassInCsv(number ,r'C:\Users\Admin\Downloads\KDP February 2021.xlsx' )
+    detectImageAndClickCenter('./ChiHa/Email.jpg')
+    AutomationWorking.waitThreadAndJoin(5)
+    copyStringToClipboard(email)
+    try:
+        staticPanel = window['Input Capture WindowPane']
+        # staticPanel.move_mouse_input(coords=(400, 400))
+        staticPanel.type_keys('^v')
+    except:
+        pass
+    detectImageAndClickCenter('./ChiHa/Password.jpg')
+    AutomationWorking.waitThreadAndJoin(5)
+    copyStringToClipboard(password)
+    try:
+        staticPanel = window['Input Capture WindowPane']
+        # staticPanel.move_mouse_input(coords=(400, 400))
+        staticPanel.type_keys('^v')
+    except:
+        pass
+    detectImageAndClickCenter('./ChiHa/SignIn.jpg')
+
 def captureScreen(number):
     im1 = pyautogui.screenshot()
     im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
     AutomationWorking.waitThreadAndJoin(1)
 def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , procedure):
     [startCom , close , paste , open , enterCode , HandleFirefox] = procedure
+    csvPath = r'C:\Users\Admin\Downloads\KDP February 2021.xlsx'
+    AutomationWorking.waitThreadAndJoin(10)
     if startCom == 1:
         try:
             startComputer(window, start, stop ,exceptComOut)
@@ -366,6 +412,12 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
                 pressAboutButton(window, i)
                 AutomationWorking.waitThreadAndJoin(2)
                 pressCheckUpdateButton(window, i)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            pressEmailPasswordAndLogin(window , replaceCom)
+        else:
+            pressEmailPasswordAndLogin(window , i)
     p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
     p.wait()
     print(p.returncode)
