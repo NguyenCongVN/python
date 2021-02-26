@@ -314,6 +314,9 @@ def pressCheckUpdateButton(window , number):
     AutomationWorking.waitThreadAndJoin(5)
     pyautogui.click()
 
+
+
+
 def pressEmailPasswordAndLogin(window , number):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
@@ -353,7 +356,6 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
         try:
             startComputer(window, start, stop ,exceptComOut)
         except:
-            # print(traceback.format_exc())
             # close app
             p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
             p.wait()

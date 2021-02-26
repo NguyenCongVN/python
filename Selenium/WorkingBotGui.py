@@ -18,12 +18,6 @@ def run(inputPathCom , procedure):
     i = 0
     for line in tree.get_children():
         try:
-            # if i == 0:
-            #     driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , True)
-            #     i = i + 1
-            # else:
-            #     driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , False)
-            # wait = WebDriverWait(driver, 40)
             [KDPrange , comName , exceptCom ,isDone ] = tree.item(line)['values']
             AutomationWorking.run(KDPrange , inputPathCom+comName , exceptCom , procedure )
             tree.item(line)['values'] = [KDPrange , comName , 'True']
