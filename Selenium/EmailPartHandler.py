@@ -48,12 +48,30 @@ def getbodyfromemail(msg):
         except AttributeError:
              handleerror("AttributeError: encountered" ,msg,charset)
     return [body , receiver]
-mboxfile = r'C:\Users\Admin\Documents\38-KU-feb-aol-fix2073-2128\38-KU-feb-aol-fix2073-2128\data\profile\default\Mail\pop.mail.yahoo-1.com\Inbox'
-print(mboxfile)
-for thisemail in mailbox.mbox(mboxfile):
-    [body , receiver] = getbodyfromemail(thisemail)
-    parsed_html = BeautifulSoup(body)
-    value = parsed_html.body.find_all("a", string=" Approve or Deny.")
-    if value:
-        print(value[0]['href'])
-        print(receiver)
+def CopyLink(email , path1):
+    # path1 = r'C:\Users\Admin\Documents\38-KU-feb-aol-fix2073-2128\38-KU-feb-aol-fix2073-2128\data\profile\default\Mail'
+    path3 = r'\Inbox'
+    link = ''
+    for i in range(56):
+        try:
+            if i == 55:
+                break
+            folderName = ''
+            if i == 0:
+                folderName = '\pop.mail.yahoo.com'
+            else:
+                folderName = '\pop.mail.yahoo-{number}.com'.format(number=i)
+            mboxfile = path1 + folderName + path3
+            for thisemail in mailbox.mbox(mboxfile):
+                [body , receiver] = getbodyfromemail(thisemail)
+                parsed_html = BeautifulSoup(body)
+                value = parsed_html.body.find_all("a", string=" Approve or Deny.")
+                if value:
+                    if receiver == email:
+                        link = value[len(value) - 1]['href']
+        except:
+            continue
+    if value == '':
+        return 0
+    else:
+        return link

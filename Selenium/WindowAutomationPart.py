@@ -12,7 +12,9 @@ import os
 import smtplib
 import random
 import xlrd
+import EmailPartHandler
 from tkinter import Tk
+from pywinauto.application import Application
 pyautogui.FAILSAFE = False
 cap = 0
 
@@ -317,7 +319,7 @@ def pressCheckUpdateButton(window , number):
 
 
 
-def pressEmailPasswordAndLogin(window , number):
+def pressEmailPasswordAndLogin(window , number , inputPathThunderBoth):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
         if str(number) in str(item.texts()):
@@ -344,82 +346,82 @@ def pressEmailPasswordAndLogin(window , number):
         pass
     detectImageAndClickCenter('./ChiHa/SignIn.jpg')
 
+def OpenThunderBirdAndRefresh():
+    app = Application(backend="uia").start(r'C:\Users\Admin\Documents\47-KU-feb-aol-fix2577-2632\stormhen-portable.exe')
+def OpenWindowAndCopyLink(window , number , email , path1):
+    window.set_focus()
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenterSingle('./ChiHa/FireFoxClick.jpg')
+    AutomationWorking.waitThreadAndJoin(3)
+    detectImageAndClickCenterSingle('./ChiHa/PlusImage.jpg')
+    response = EmailPartHandler.CopyLink(email ,path1)
+    if response != 0:
+        copyStringToClipboard(response)
+    try:
+        staticPanel = window['Input Capture WindowPane']
+        # staticPanel.move_mouse_input(coords=(400, 400))
+        staticPanel.type_keys('^v')
+        AutomationWorking.waitThreadAndJoin(2)
+        staticPanel.type_keys('{ENTER}')
+        AutomationWorking.waitThreadAndJoin(3)
+        detectImageAndClickCenterSingle('./ChiHa/Approve.jpg')
+        AutomationWorking.waitThreadAndJoin(3)
+        detectImageAndClickCenterSingle('./ChiHa/KindleLogo.jpg')
+        AutomationWorking.waitThreadAndJoin(3)
+        detectImageAndClickCenter('./ChiHa/RefreshLink.jpg')
+    except:
+        pass
 def captureScreen(number):
     im1 = pyautogui.screenshot()
     im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
     AutomationWorking.waitThreadAndJoin(1)
-def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , procedure):
-    [startCom , close , paste , open , enterCode , HandleFirefox] = procedure
+def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , inputPathThunderBoth):
     csvPath = r'C:\Users\Admin\Downloads\KDP February 2021.xlsx'
-    AutomationWorking.waitThreadAndJoin(10)
-    if startCom == 1:
-        try:
-            startComputer(window, start, stop ,exceptComOut)
-        except:
-            # close app
-            p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
-            p.wait()
-            print(p.returncode)
-            OpenWindow(windowPath)
-            AutomationWorking.waitThreadAndJoin(5)
-            startComputer(window, start, stop , exceptComOut)
-        print('start done')
-        AutomationWorking.waitThreadAndJoin(20)
-    if close == 1:
-        for i in range(start, stop + 1):
-            if str(i) in exceptComOut:
-                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-                closeOpeningWindow(window, replaceCom , start)
-            else:
-                closeOpeningWindow(window, i, start)
-        AutomationWorking.waitThreadAndJoin(10)
-    if paste == 1:
-        for i in range(start, stop + 1):
-            if str(i) in exceptComOut:
-                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-                pasteFile(window, replaceCom, start)
-            else:
-                pasteFile(window, i , start )
-        AutomationWorking.waitThreadAndJoin(20)
-    if open == 1:
-        for i in range(start, stop + 1):
-            if str(i) in exceptComOut:
-                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-                openFileCustomised(window, replaceCom)
-            else:
-                openFileCustomised(window, i )
-    if enterCode == 1:
-        for i in range(start, stop + 1):
-            if str(i) in exceptComOut:
-                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-                enterCodeAndOke(window, replaceCom)
-            else:
-                enterCodeAndOke(window, i )
-    if HandleFirefox == 1:
-        for i in range(start, stop + 1):
-            if str(i) in exceptComOut:
-                replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-                pressOptionFirefox(window, replaceCom)
-                AutomationWorking.waitThreadAndJoin(10)
-                pressHelpButton(window ,replaceCom )
-                AutomationWorking.waitThreadAndJoin(5)
-                pressAboutButton(window , replaceCom)
-                AutomationWorking.waitThreadAndJoin(5)
-                pressCheckUpdateButton(window, replaceCom)
-            else:
-                pressOptionFirefox(window, i)
-                AutomationWorking.waitThreadAndJoin(6)
-                pressHelpButton(window, i)
-                AutomationWorking.waitThreadAndJoin(2)
-                pressAboutButton(window, i)
-                AutomationWorking.waitThreadAndJoin(2)
-                pressCheckUpdateButton(window, i)
+    try:
+        startComputer(window, start, stop ,exceptComOut)
+    except:
+        # close app
+        p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
+        p.wait()
+        print(p.returncode)
+        OpenWindow(windowPath)
+        AutomationWorking.waitThreadAndJoin(5)
+        startComputer(window, start, stop , exceptComOut)
+    print('start done')
+    # AutomationWorking.waitThreadAndJoin(10)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            pressEmailPasswordAndLogin(window , replaceCom)
+            pressEmailPasswordAndLogin(window , replaceCom , inputPathThunderBoth)
+            AutomationWorking.waitThreadAndJoin(5)
+            try:
+                detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
+            except:
+                pass
         else:
-            pressEmailPasswordAndLogin(window , i)
+            pressEmailPasswordAndLogin(window , i , inputPathThunderBoth)
+            AutomationWorking.waitThreadAndJoin(5)
+            try:
+                detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
+            except:
+                pass
+    OpenThunderBirdAndRefresh()
+    AutomationWorking.waitThreadAndJoin(10)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            [email, password] = findUserAndPassInCsv(replaceCom, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
+            OpenWindowAndCopyLink(window , replaceCom , email , inputPathThunderBoth )
+        else:
+            [email, password] = findUserAndPassInCsv(i, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
+            OpenWindowAndCopyLink(window, i, email , inputPathThunderBoth)
     p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
+    p.wait()
+    print(p.returncode)
+    p = Popen("KillThunderBird.bat", shell=True, stdout=subprocess.PIPE)
     p.wait()
     print(p.returncode)

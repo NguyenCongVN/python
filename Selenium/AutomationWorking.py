@@ -27,19 +27,19 @@ class windowAutoThread (threading.Thread):
         WindowAutomationPart.handleComRange(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut)
 
 class windowAutoThreadCustomized (threading.Thread):
-    def __init__(self , windowPath , startCom , stopCom ,exceptComOut , procedure):
+    def __init__(self , windowPath , startCom , stopCom ,exceptComOut , inputPathThunderBoth):
         threading.Thread.__init__(self)
         self.windowPath = windowPath
         self.startCom = startCom
         self.stopCom = stopCom
         self.exceptComOut = exceptComOut
-        self.procedure = procedure
+        self.inputPathThunderBoth = inputPathThunderBoth
     def run(self):
         # # back to window working
         print('opening window')
         window = WindowAutomationPart.OpenWindow(self.windowPath)
         print('handling window')
-        WindowAutomationPart.handleComRangeCustomized(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut , self.procedure)
+        WindowAutomationPart.handleComRangeCustomized(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut  , self.inputPathThunderBoth)
 class waitThread (threading.Thread):
     def __init__(self , timeWait):
         threading.Thread.__init__(self)
@@ -424,12 +424,12 @@ def disableBill(driver ,wait , KDPRange):
                 raise e
 
 #C:\Users\Admin\Documents\GGC KDP\PO Ho Chieu 1 KDP thang 1 2021 1345-2112\PO Ho Chieu 1\GoogleChromePortable.exe
-def run(KDPRange , windowPath , exceptCom , procedure):
+def run(KDPRange , windowPath , exceptCom , inputPathThunderBoth):
     [start , stop] = KDPRange.split('-')
     start = int(start)
     stop = int(stop)
     exceptComOut = exceptCom.split(',')
-    customThread = windowAutoThreadCustomized(startCom=start, stopCom=stop, windowPath=windowPath, exceptComOut=exceptComOut , procedure=procedure)
+    customThread = windowAutoThreadCustomized(startCom=start, stopCom=stop, windowPath=windowPath, exceptComOut=exceptComOut, inputPathThunderBoth=inputPathThunderBoth)
     customThread.start()
     customThread.join()
     # # stopComAll(wait, driver)
