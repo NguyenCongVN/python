@@ -12,19 +12,19 @@ def EnterProjectRangeAndPath(item , listProject):
     listProject.append(item)
 
 
-def run(inputPathCom , inputPathThunderBoth):
+def run(inputPathCom):
     i = 0
     for line in tree.get_children():
         try:
-            [KDPrange , comName , exceptCom ,isDone ] = tree.item(line)['values']
-            AutomationWorking.run(KDPrange , inputPathCom+comName , exceptCom , inputPathThunderBoth )
+            [KDPrange , comName , exceptCom , pathThunderBirdData , pathThunderBirdExe ,isDone ] = tree.item(line)['values']
+            AutomationWorking.run(KDPrange , inputPathCom+comName , exceptCom , pathThunderBirdExe , pathThunderBirdData )
             tree.item(line)['values'] = [KDPrange , comName , 'True']
             AutomationWorking.waitThreadAndJoin(5)
         except:
             print(traceback.format_exc())
             print('exception happend and cant handle it')
             continue
-header = ['Range', 'Path','Except' ,'Done']
+header = ['Range', 'Path','Except' , 'PathThunderBirdData' , 'PathThunderBirdExe' ,'Done']
 root = Tk()
 root.title('Stop-AutomationBot')
 root.geometry('400x800')
@@ -76,7 +76,22 @@ inputExcept7 = Entry(rangeInputFrame7)
 labelExcept7.pack(side=LEFT , anchor=NW , padx=20)
 inputExcept7.pack(side=RIGHT , anchor=NE , padx=40)
 
-AddButton = Button(root , text='add project' , command=lambda: insertItemToTree([inputRange.get() , inputPath.get() , inputExcept7.get() ,'false']))
+rangeInputFrame4 = Frame(root)
+rangeInputFrame4.pack(fill='both', expand=FALSE)
+labelPathCode = Label(rangeInputFrame4, text='PathOfThunderBirdData')
+inputPathCode = Entry(rangeInputFrame4)
+labelPathCode.pack(side=LEFT , anchor=NW , padx=20)
+inputPathCode.pack(side=RIGHT , anchor=NE , padx=40)
+
+rangeInputFrame5 = Frame(root)
+rangeInputFrame5.pack(fill='both', expand=FALSE)
+labelPathThunderBird = Label(rangeInputFrame4, text='PathOfThunderBirdExe')
+inputPathThunderBird = Entry(rangeInputFrame5)
+labelPathThunderBird.pack(side=LEFT , anchor=NW , padx=20)
+inputPathThunderBird.pack(side=RIGHT , anchor=NE , padx=40)
+
+
+AddButton = Button(root , text='add project' , command=lambda: insertItemToTree([inputRange.get() , inputPath.get() , inputExcept7.get() , inputPathCode.get() , inputPathThunderBird.get() ,'false']))
 AddButton.pack()
 
 rangeInputFrame3 = Frame(root)
@@ -85,12 +100,5 @@ labelPathCom = Label(rangeInputFrame3, text='PathToComputer')
 inputPathCom = Entry(rangeInputFrame3)
 labelPathCom.pack(side=LEFT , anchor=NW , padx=20)
 inputPathCom.pack(side=RIGHT , anchor=NE , padx=40)
-
-rangeInputFrame4 = Frame(root)
-rangeInputFrame4.pack(fill='both', expand=FALSE)
-labelPathCode = Label(rangeInputFrame4, text='PathOfThunderBoth')
-inputPathCode = Entry(rangeInputFrame4)
-labelPathCode.pack(side=LEFT , anchor=NW , padx=20)
-inputPathCode.pack(side=RIGHT , anchor=NE , padx=40)
 
 root.mainloop()

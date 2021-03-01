@@ -121,20 +121,6 @@ def pasteFile(window , number , start):
                 staticPanel.type_keys('^v')
             except:
                 pass
-                # print(traceback.format_exc())
-                # if (number - start + 1) == 1:
-                #     staticPanel = window.child_window(best_match='Static',found_index=0)
-                #     staticPanel.move_mouse_input(coords=(400, 400))
-                #     staticPanel.type_keys('^v')
-                # else:
-                #     if (number - start + 1) == 2:
-                #         staticPanel = window.child_window(best_match='Static0' , found_index=0)
-                #         staticPanel.move_mouse_input(coords=(400, 400))
-                #         staticPanel.type_keys('^v')
-                #     else:
-                #         staticPanel = window.child_window(best_match='Static{number}'.format(number=(number - start + 1)) , found_index = 0)
-                #         staticPanel.move_mouse_input(coords=(400, 400))
-                #         staticPanel.type_keys('^v')
             break
 def closeOpeningWindow(window , number , start):
     TreeItems = window.TreeItem
@@ -346,8 +332,8 @@ def pressEmailPasswordAndLogin(window , number , inputPathThunderBoth):
         pass
     detectImageAndClickCenter('./ChiHa/SignIn.jpg')
 
-def OpenThunderBirdAndRefresh():
-    app = Application(backend="uia").start(r'C:\Users\Admin\Documents\47-KU-feb-aol-fix2577-2632\stormhen-portable.exe')
+def OpenThunderBirdAndRefresh(thunderbirdPath):
+    app = Application(backend="uia").start(thunderbirdPath)
 def OpenWindowAndCopyLink(window , number , email , path1):
     window.set_focus()
     TreeItems = window.TreeItem
@@ -379,7 +365,7 @@ def captureScreen(number):
     im1 = pyautogui.screenshot()
     im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
     AutomationWorking.waitThreadAndJoin(1)
-def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , inputPathThunderBoth):
+def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , pathThunderBirdData , pathThunderBirdExe):
     csvPath = r'C:\Users\Admin\Downloads\KDP February 2021.xlsx'
     try:
         startComputer(window, start, stop ,exceptComOut)
@@ -396,29 +382,29 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            pressEmailPasswordAndLogin(window , replaceCom , inputPathThunderBoth)
+            pressEmailPasswordAndLogin(window , replaceCom , pathThunderBirdData)
             AutomationWorking.waitThreadAndJoin(5)
             try:
                 detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
             except:
                 pass
         else:
-            pressEmailPasswordAndLogin(window , i , inputPathThunderBoth)
+            pressEmailPasswordAndLogin(window , i , pathThunderBirdData)
             AutomationWorking.waitThreadAndJoin(5)
             try:
                 detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
             except:
                 pass
-    OpenThunderBirdAndRefresh()
+    OpenThunderBirdAndRefresh(pathThunderBirdExe)
     AutomationWorking.waitThreadAndJoin(10)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             [email, password] = findUserAndPassInCsv(replaceCom, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
-            OpenWindowAndCopyLink(window , replaceCom , email , inputPathThunderBoth )
+            OpenWindowAndCopyLink(window , replaceCom , email , pathThunderBirdData )
         else:
             [email, password] = findUserAndPassInCsv(i, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
-            OpenWindowAndCopyLink(window, i, email , inputPathThunderBoth)
+            OpenWindowAndCopyLink(window, i, email , pathThunderBirdData)
     p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
     p.wait()
     print(p.returncode)

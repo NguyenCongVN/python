@@ -27,19 +27,19 @@ class windowAutoThread (threading.Thread):
         WindowAutomationPart.handleComRange(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut)
 
 class windowAutoThreadCustomized (threading.Thread):
-    def __init__(self , windowPath , startCom , stopCom ,exceptComOut , inputPathThunderBoth):
+    def __init__(self , windowPath , startCom , stopCom ,exceptComOut , pathThunderBirdData , pathThunderBirdExe):
         threading.Thread.__init__(self)
         self.windowPath = windowPath
         self.startCom = startCom
         self.stopCom = stopCom
         self.exceptComOut = exceptComOut
-        self.inputPathThunderBoth = inputPathThunderBoth
+        self.pathThunderBirdData = pathThunderBirdData
     def run(self):
         # # back to window working
         print('opening window')
         window = WindowAutomationPart.OpenWindow(self.windowPath)
         print('handling window')
-        WindowAutomationPart.handleComRangeCustomized(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut  , self.inputPathThunderBoth)
+        WindowAutomationPart.handleComRangeCustomized(window, self.startCom, self.stopCom, self.windowPath , self.exceptComOut  , self.pathThunderBirdData , self.pathThunderBirdExe)
 class waitThread (threading.Thread):
     def __init__(self , timeWait):
         threading.Thread.__init__(self)
@@ -424,12 +424,12 @@ def disableBill(driver ,wait , KDPRange):
                 raise e
 
 #C:\Users\Admin\Documents\GGC KDP\PO Ho Chieu 1 KDP thang 1 2021 1345-2112\PO Ho Chieu 1\GoogleChromePortable.exe
-def run(KDPRange , windowPath , exceptCom , inputPathThunderBoth):
+def run(KDPRange , windowPath , exceptCom , pathThunderBirdData , pathThunderBirdExe):
     [start , stop] = KDPRange.split('-')
     start = int(start)
     stop = int(stop)
     exceptComOut = exceptCom.split(',')
-    customThread = windowAutoThreadCustomized(startCom=start, stopCom=stop, windowPath=windowPath, exceptComOut=exceptComOut, inputPathThunderBoth=inputPathThunderBoth)
+    customThread = windowAutoThreadCustomized(startCom=start, stopCom=stop, windowPath=windowPath, exceptComOut=exceptComOut, pathThunderBirdData=pathThunderBirdData , pathThunderBirdExe=pathThunderBirdExe)
     customThread.start()
     customThread.join()
     # # stopComAll(wait, driver)
