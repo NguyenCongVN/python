@@ -17,7 +17,7 @@ def run(inputPathCom):
     for line in tree.get_children():
         try:
             [KDPrange , comName , exceptCom , pathThunderBirdData , pathThunderBirdExe ,isDone ] = tree.item(line)['values']
-            AutomationWorking.run(KDPrange , inputPathCom+comName , exceptCom , pathThunderBirdExe , pathThunderBirdData )
+            AutomationWorking.run(KDPrange , inputPathCom+comName , exceptCom  , pathThunderBirdData , pathThunderBirdExe )
             tree.item(line)['values'] = [KDPrange , comName , 'True']
             AutomationWorking.waitThreadAndJoin(5)
         except:
@@ -27,10 +27,10 @@ def run(inputPathCom):
 header = ['Range', 'Path','Except' , 'PathThunderBirdData' , 'PathThunderBirdExe' ,'Done']
 root = Tk()
 root.title('Stop-AutomationBot')
-root.geometry('400x800')
+root.geometry('600x800')
 hello = Label(root , text='Created by ThanhCong', fg='#2631ab')
 hello.place(relx=0.6 , rely=0.9)
-startButton = Button(root , text='Start' , command=lambda: run(inputPathCom.get() , inputPathCode.get()))
+startButton = Button(root , text='Start' , command=lambda: run(inputPathCom.get()))
 startButton.place(relx=0.5,rely=0.85)
 container = ttk.Frame(root, width=400, height=100)
 container.pack(fill='both', expand=True)
@@ -85,7 +85,7 @@ inputPathCode.pack(side=RIGHT , anchor=NE , padx=40)
 
 rangeInputFrame5 = Frame(root)
 rangeInputFrame5.pack(fill='both', expand=FALSE)
-labelPathThunderBird = Label(rangeInputFrame4, text='PathOfThunderBirdExe')
+labelPathThunderBird = Label(rangeInputFrame5, text='PathOfThunderBirdExe')
 inputPathThunderBird = Entry(rangeInputFrame5)
 labelPathThunderBird.pack(side=LEFT , anchor=NW , padx=20)
 inputPathThunderBird.pack(side=RIGHT , anchor=NE , padx=40)

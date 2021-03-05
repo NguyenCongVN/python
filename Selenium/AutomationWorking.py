@@ -34,6 +34,7 @@ class windowAutoThreadCustomized (threading.Thread):
         self.stopCom = stopCom
         self.exceptComOut = exceptComOut
         self.pathThunderBirdData = pathThunderBirdData
+        self.pathThunderBirdExe = pathThunderBirdExe
     def run(self):
         # # back to window working
         print('opening window')

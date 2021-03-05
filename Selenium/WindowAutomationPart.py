@@ -68,7 +68,6 @@ def SendMail(ImgFileName , range , fromAd , toAd , smtpServer):
 def OpenWindow(path):
     Popen(path, shell=True)
     dlg = Desktop(backend="uia")['EAA KUUUUU - Remote Desktop Connection Manager v2.72']
-    AutomationWorking.waitThreadAndJoin(5)
     dlg.wait('visible')
     return dlg
 
