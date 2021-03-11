@@ -1,6 +1,8 @@
 import subprocess
 import traceback
 from subprocess import Popen
+from typing import re
+
 from pywinauto import Desktop
 import pyautogui
 import pywinauto
@@ -29,7 +31,7 @@ def copyStringToClipboard(text):
 def findUserAndPassInCsv(id , csv_path):
     workbook = xlrd.open_workbook(csv_path)
     worksheet = workbook.sheet_by_name('KU')
-    return [worksheet.cell(id, 1 ).value , worksheet.cell(id, 4 ).value]
+    return [worksheet.cell(id, 1 ).value , worksheet.cell(id, 5 ).value]
 def InitSendMail(userName , passWord):
     count = 0
     while count < 5:
@@ -68,6 +70,7 @@ def SendMail(ImgFileName , range , fromAd , toAd , smtpServer):
 def OpenWindow(path):
     Popen(path, shell=True)
     dlg = Desktop(backend="uia")['EAA KUUUUU - Remote Desktop Connection Manager v2.72']
+    AutomationWorking.waitThreadAndJoin(5)
     dlg.wait('visible')
     return dlg
 
@@ -217,7 +220,7 @@ def detectImageAndClickCenterSingle(imagePath):
         try:
             if count == 5:
                 break
-            r = pyautogui.locateOnScreen(imagePath, confidence=0.8)
+            r = pyautogui.locateOnScreen(imagePath, confidence=0.75)
             point = pyautogui.center(r)
             pointx, pointy = point
             pyautogui.click(pointx, pointy)
@@ -233,7 +236,7 @@ def detectImageAndClickCenter(imagePath):
             if count == 5:
                 captureScreen(random.randrange(1 , 100 , 1))
                 return 1
-            r = pyautogui.locateOnScreen(imagePath, confidence=0.8)
+            r = pyautogui.locateOnScreen(imagePath, confidence=0.7)
             point = pyautogui.center(r)
             pointx, pointy = point
             pyautogui.doubleClick(pointx, pointy)
@@ -242,6 +245,22 @@ def detectImageAndClickCenter(imagePath):
             count = count + 1
             continue
 
+def detectImageAndClickLeft(imagePath , coord):
+    r = None
+    count = 0
+    while r is None:
+        try:
+            if count == 5:
+                captureScreen(random.randrange(1 , 100 , 1))
+                return 1
+            r = pyautogui.locateOnScreen(imagePath, confidence=0.7)
+            point = pyautogui.center(r)
+            pointx, pointy = point
+            pyautogui.doubleClick(pointx + coord, pointy)
+            return 0
+        except:
+            count = count + 1
+            continue
 
 def openFileCustomised(window , number):
     TreeItems = window.TreeItem
@@ -314,6 +333,7 @@ def pressEmailPasswordAndLogin(window , number , inputPathThunderBoth):
     detectImageAndClickCenter('./ChiHa/Email.jpg')
     AutomationWorking.waitThreadAndJoin(5)
     copyStringToClipboard(email)
+    print(email)
     try:
         staticPanel = window['Input Capture WindowPane']
         # staticPanel.move_mouse_input(coords=(400, 400))
@@ -340,26 +360,58 @@ def OpenWindowAndCopyLink(window , number , email , path1):
         if str(number) in str(item.texts()):
             item.double_click_input(button='left', coords=(None, None))
             break
-    detectImageAndClickCenterSingle('./ChiHa/FireFoxClick.jpg')
-    AutomationWorking.waitThreadAndJoin(3)
-    detectImageAndClickCenterSingle('./ChiHa/PlusImage.jpg')
     response = EmailPartHandler.CopyLink(email ,path1)
     if response != 0:
         copyStringToClipboard(response)
-    try:
-        staticPanel = window['Input Capture WindowPane']
-        # staticPanel.move_mouse_input(coords=(400, 400))
-        staticPanel.type_keys('^v')
-        AutomationWorking.waitThreadAndJoin(2)
-        staticPanel.type_keys('{ENTER}')
-        AutomationWorking.waitThreadAndJoin(3)
-        detectImageAndClickCenterSingle('./ChiHa/Approve.jpg')
-        AutomationWorking.waitThreadAndJoin(3)
-        detectImageAndClickCenterSingle('./ChiHa/KindleLogo.jpg')
-        AutomationWorking.waitThreadAndJoin(3)
-        detectImageAndClickCenter('./ChiHa/RefreshLink.jpg')
-    except:
-        pass
+        try:
+            detectImageAndClickCenterSingle('./ChiHa/FireFoxClick.jpg')
+            AutomationWorking.waitThreadAndJoin(5)
+            detectImageAndClickCenterSingle('./ChiHa/PlusImage.jpg')
+            staticPanel = window['Input Capture WindowPane']
+            # staticPanel.move_mouse_input(coords=(400, 400))
+            staticPanel.type_keys('^v')
+            AutomationWorking.waitThreadAndJoin(2)
+            staticPanel.type_keys('{ENTER}')
+            AutomationWorking.waitThreadAndJoin(3)
+            detectImageAndClickCenterSingle('./ChiHa/Approve.jpg')
+            AutomationWorking.waitThreadAndJoin(3)
+            detectImageAndClickCenterSingle('./ChiHa/KindleLogo.jpg')
+            AutomationWorking.waitThreadAndJoin(3)
+            detectImageAndClickCenter('./ChiHa/RefreshLink.jpg')
+        except:
+            pass
+def largerKindle(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenterSingle('./ChiHa/maximize.jpg')
+
+def OpenBook(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickLeft('./ChiHa/OpenBook.jpg' , 70)
+
+def closeOpen(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenterSingle('./ChiHa/Closing.jpg')
+
+def HideNote(window , number):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(number) in str(item.texts()):
+            item.double_click_input(button='left', coords=(None, None))
+            break
+    detectImageAndClickCenterSingle('./ChiHa/HideNote.jpg')
+
 def captureScreen(number):
     im1 = pyautogui.screenshot()
     im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
@@ -377,12 +429,12 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
         AutomationWorking.waitThreadAndJoin(5)
         startComputer(window, start, stop , exceptComOut)
     print('start done')
-    # AutomationWorking.waitThreadAndJoin(10)
+    AutomationWorking.waitThreadAndJoin(10)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             pressEmailPasswordAndLogin(window , replaceCom , pathThunderBirdData)
-            AutomationWorking.waitThreadAndJoin(5)
+            AutomationWorking.waitThreadAndJoin(10)
             try:
                 detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
             except:
@@ -404,6 +456,30 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
         else:
             [email, password] = findUserAndPassInCsv(i, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
             OpenWindowAndCopyLink(window, i, email , pathThunderBirdData)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            largerKindle(window , replaceCom)
+        else:
+            largerKindle(window, i)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            OpenBook(window , replaceCom)
+        else:
+            OpenBook(window, i)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            closeOpen(window , replaceCom)
+        else:
+            closeOpen(window, i)
+    for i in range(start, stop + 1):
+        if str(i) in exceptComOut:
+            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
+            HideNote(window , replaceCom)
+        else:
+            HideNote(window, i)
     p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
     p.wait()
     print(p.returncode)

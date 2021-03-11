@@ -52,10 +52,8 @@ def CopyLink(email , path1):
     # path1 = r'C:\Users\Admin\Documents\38-KU-feb-aol-fix2073-2128\38-KU-feb-aol-fix2073-2128\data\profile\default\Mail'
     path3 = r'\Inbox'
     link = ''
-    for i in range(56):
+    for i in range(70):
         try:
-            if i == 55:
-                break
             folderName = ''
             if i == 0:
                 folderName = '\pop.mail.yahoo.com'
