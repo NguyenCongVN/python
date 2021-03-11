@@ -365,14 +365,14 @@ def OpenWindowAndCopyLink(window , number , email , path1):
         copyStringToClipboard(response)
         try:
             detectImageAndClickCenterSingle('./ChiHa/FireFoxClick.jpg')
-            AutomationWorking.waitThreadAndJoin(5)
+            AutomationWorking.waitThreadAndJoin(8)
             detectImageAndClickCenterSingle('./ChiHa/PlusImage.jpg')
             staticPanel = window['Input Capture WindowPane']
             # staticPanel.move_mouse_input(coords=(400, 400))
             staticPanel.type_keys('^v')
             AutomationWorking.waitThreadAndJoin(2)
             staticPanel.type_keys('{ENTER}')
-            AutomationWorking.waitThreadAndJoin(3)
+            AutomationWorking.waitThreadAndJoin(6)
             detectImageAndClickCenterSingle('./ChiHa/Approve.jpg')
             AutomationWorking.waitThreadAndJoin(3)
             detectImageAndClickCenterSingle('./ChiHa/KindleLogo.jpg')
@@ -468,12 +468,14 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
             OpenBook(window , replaceCom)
         else:
             OpenBook(window, i)
+    AutomationWorking.waitThreadAndJoin(8)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             closeOpen(window , replaceCom)
         else:
             closeOpen(window, i)
+    AutomationWorking.waitThreadAndJoin(8)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
