@@ -9,12 +9,12 @@ import pywinauto
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
-import AutomationWorking
+from Selenium import AutomationWorking
 import os
 import smtplib
 import random
 import xlrd
-import EmailPartHandler
+from Selenium import EmailPartHandler
 from tkinter import Tk
 from pywinauto.application import Application
 pyautogui.FAILSAFE = False
@@ -330,10 +330,18 @@ def pressEmailPasswordAndLogin(window , number , inputPathThunderBoth):
             item.double_click_input(button='left', coords=(None, None))
             break
     [email , password] = findUserAndPassInCsv(number ,r'C:\Users\Admin\Downloads\KDP February 2021.xlsx' )
-    detectImageAndClickCenter('./ChiHa/Email.jpg')
+    count = 0
+    while count < 8:
+        if detectImageAndClickCenter('./ChiHa/Email.jpg') == 1:
+            for item in TreeItems.descendants():
+                if str(number) in str(item.texts()):
+                    item.double_click_input(button='left', coords=(None, None))
+                    break
+            count = count + 1
+            continue
+        break
     AutomationWorking.waitThreadAndJoin(5)
     copyStringToClipboard(email)
-    print(email)
     try:
         staticPanel = window['Input Capture WindowPane']
         # staticPanel.move_mouse_input(coords=(400, 400))
@@ -434,14 +442,14 @@ def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , 
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             pressEmailPasswordAndLogin(window , replaceCom , pathThunderBirdData)
-            AutomationWorking.waitThreadAndJoin(10)
+            AutomationWorking.waitThreadAndJoin(5)
             try:
                 detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
             except:
                 pass
         else:
             pressEmailPasswordAndLogin(window , i , pathThunderBirdData)
-            AutomationWorking.waitThreadAndJoin(5)
+            AutomationWorking.waitThreadAndJoin(3)
             try:
                 detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
             except:
