@@ -69,7 +69,7 @@ def CopyLink(email , path1):
                         link = value[len(value) - 1]['href']
         except:
             continue
-    if value == None:
+    if link == '':
         return 0
     else:
         return link
