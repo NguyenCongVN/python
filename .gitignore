@@ -1,3 +1,4 @@
 *spec
 dist
 venv
+*.pyc
