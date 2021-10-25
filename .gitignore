@@ -1,0 +1,12 @@
+.idea
+venv
+dist
+result
+*.rar
+*.pyc
+.idea
+__pycache__
+*.png
+Selenium/result/*.exe
+chromedriver*
+build

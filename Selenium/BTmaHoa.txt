@@ -1,0 +1,1 @@
+Xây dựng chương trình demo mã hóa AES(CFB mode) trong mã hóa và giải mã thông điệp có kích thước lớn ( < 10 blocks )

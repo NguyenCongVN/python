@@ -63,7 +63,9 @@ def startComputer(window , start , stop , exceptComOut):
             check = int(exceptComOut[exceptComOut.index(str(check)) + 1])
             print('see replace with {old} with {new}'.format(old=temp , new=check))
             for item in TreeItems.descendants():
-                if str(check) in str(item.texts()):
+                label , number = str(item.texts()).split('-')
+                number = number[:-2]
+                if str(check) == number:
                     print('starting computer {check}'.format(check=check))
                     item.double_click_input(button='left', coords=(None, None))
                     check = temp
@@ -72,19 +74,21 @@ def startComputer(window , start , stop , exceptComOut):
                     break
         else:
             for item in TreeItems.descendants():
-                if str(check) in str(item.texts()):
+                data = str(item.texts()).split('-')
+                number = data[len(data) - 1]
+                number = number[:-2]
+                if str(check) == number:
                     print('starting computer {check}'.format(check=check))
                     item.double_click_input(button='left', coords=(None, None))
                     check = check + 1
                     break
-def copyFile(path , fileName):
+def     copyFile(path , fileName):
     import subprocess
     subprocess.Popen(r'explorer /select,"{path}"'.format(path=path))
     AutomationWorking.waitThreadAndJoin(5)
     dlg = Desktop(backend="uia")['Google Drive']
     # put window on top
-    dlg.minimize()
-    dlg.restore()
+    dlg.set_focus()
     file = dlg[fileName]
     file.click_input()
     file.type_keys('^c')
@@ -92,43 +96,31 @@ def copyFile(path , fileName):
 def pasteFile(window , number , start):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
+        label, numberx = str(item.texts()).split('-')
+        numberx = numberx[:-2]
+        if str(number) == numberx:
             print('pasting computer {check}'.format(check=number))
             item.click_input(button='left', coords=(None, None))
             try:
                 staticPanel = window['Input Capture WindowPane']
-                staticPanel.move_mouse_input(coords=(400, 400))
-                staticPanel.double_click_input(button='left', coords=(None, None))
+                staticPanel.double_click_input(button='left', coords=(1300, 400))
                 staticPanel.type_keys('^v')
             except:
                 pass
-                # print(traceback.format_exc())
-                # if (number - start + 1) == 1:
-                #     staticPanel = window.child_window(best_match='Static',found_index=0)
-                #     staticPanel.move_mouse_input(coords=(400, 400))
-                #     staticPanel.type_keys('^v')
-                # else:
-                #     if (number - start + 1) == 2:
-                #         staticPanel = window.child_window(best_match='Static0' , found_index=0)
-                #         staticPanel.move_mouse_input(coords=(400, 400))
-                #         staticPanel.type_keys('^v')
-                #     else:
-                #         staticPanel = window.child_window(best_match='Static{number}'.format(number=(number - start + 1)) , found_index = 0)
-                #         staticPanel.move_mouse_input(coords=(400, 400))
-                #         staticPanel.type_keys('^v')
             break
 def closeOpeningWindow(window , number , start):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
+        label, numberx = str(item.texts()).split('-')
+        numberx = numberx[:-2]
+        if str(number) == numberx:
             count = 0
             while count < 5:
                 print('closing opening window computer {check}'.format(check=number))
-                item.click_input(button='left', coords=(None, None))
+                item.double_click_input(button='left', coords=(None, None))
                 try:
                     staticPanel = window['Input Capture WindowPane']
-                    staticPanel.move_mouse_input(coords=(400, 400))
-                    staticPanel.double_click_input(button='left', coords=(None, None))
+                    staticPanel.double_click_input(button='left', coords=(1300, 400))
                     staticPanel.type_keys('%{F4}')
                     break
                 except:
@@ -142,7 +134,9 @@ def closeOpeningWindow(window , number , start):
 def openFile(window , number):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
+        label, numberx = str(item.texts()).split('-')
+        numberx = numberx[:-2]
+        if str(number) == numberx:
             item.double_click_input(button='left', coords=(None, None))
             break
     AutomationWorking.waitThreadAndJoin(5)
@@ -152,7 +146,7 @@ def openFile(window , number):
         try:
             if count == 20:
                 break
-            r = pyautogui.locateOnScreen('testing.png' ,confidence=0.8)
+            r = pyautogui.locateOnScreen('testing.png' ,confidence=0.7)
             point = pyautogui.center(r)
             pointx, pointy = point
             pyautogui.doubleClick(pointx, pointy)
@@ -171,28 +165,33 @@ def handleComRange(window, start , stop , windowPath , exceptComOut):
         OpenWindow(windowPath)
         AutomationWorking.waitThreadAndJoin(5)
         startComputer(window, start, stop , exceptComOut)
-    AutomationWorking.waitThreadAndJoin(100)
+    AutomationWorking.waitThreadAndJoin(70)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             closeOpeningWindow(window, replaceCom , start)
         else:
             closeOpeningWindow(window, i, start)
-    AutomationWorking.waitThreadAndJoin(10)
+    AutomationWorking.waitThreadAndJoin(15)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             pasteFile(window, replaceCom, start)
         else:
             pasteFile(window, i , start )
-    AutomationWorking.waitThreadAndJoin(60)
+    AutomationWorking.waitThreadAndJoin(40)
     for i in range(start, stop + 1):
         if str(i) in exceptComOut:
             replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
             openFile(window, replaceCom)
         else:
             openFile(window, i )
-    AutomationWorking.waitThreadAndJoin(200)
+    AutomationWorking.waitThreadAndJoin(150)
+    # Click to get screen shot
+    TreeItems = window.TreeItem
+    TreeItems.click_input(button='left', coords=(None, None))
+    AutomationWorking.waitThreadAndJoin(2)
+    #
     img = pyautogui.screenshot()
     img.save(r'.\result\result-{start}-{stop}.png'.format(start=start , stop=stop))
     # close app

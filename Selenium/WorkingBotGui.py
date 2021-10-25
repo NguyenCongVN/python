@@ -5,6 +5,7 @@ import tkinter.font as tkFont
 import traceback
 from selenium.webdriver.support.wait import WebDriverWait
 import AutomationWorking
+import xlrd
 listProject = {}
 def insertItemToTree(item):
     tree.insert('', 'end', values=item)
@@ -13,10 +14,21 @@ def EnterProjectRangeAndPath(item , listProject):
     insertItemToTree(item)
     listProject.append(item)
 
+def findDataInCsv(id , csv_path):
+    workbook = xlrd.open_workbook(csv_path)
+    worksheet = workbook.sheet_by_name('Sheet1')
+    cell0 = worksheet.cell(id, 0 ).value
+    cell1 = worksheet.cell(id , 1).value
+    cell2 = ''
+    try:
+        cell2 = worksheet.cell(id, 2 ).value
+    except:
+        pass
+    return [ cell0  ,  cell1 , cell2 ]
 
-def run(inputPathCom , inputPathCode , inputPathChrome , inputBill):
+def run(inputPathCom , inputPathCode , inputPathChrome , inputBill , procedures):
     i = 0
-    for line in tree.get_children():
+    for j in range(10):
         try:
             if i == 0:
                 driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , True)
@@ -24,9 +36,8 @@ def run(inputPathCom , inputPathCode , inputPathChrome , inputBill):
             else:
                 driver = AutomationWorking.InitRun(inputPathChrome, inputPathCode , False)
             wait = WebDriverWait(driver, 40)
-            [KDPrange , comName , exceptCom ,isDone ] = tree.item(line)['values']
-            AutomationWorking.run(driver , wait ,KDPrange , inputPathCom+comName , inputBill , exceptCom)
-            tree.item(line)['values'] = [KDPrange , comName , 'True']
+            [KDPrange , comName , exceptCom ] = findDataInCsv(j , r'C:\Users\Admin\OneDrive\Documents\Book1.xlsx')
+            AutomationWorking.run(driver , wait ,KDPrange , inputPathCom+comName , inputBill , exceptCom , procedures)
             AutomationWorking.waitThreadAndJoin(5)
             for handle in driver.window_handles:
                 driver.switch_to.window(handle)
@@ -55,10 +66,10 @@ def run(inputPathCom , inputPathCode , inputPathChrome , inputBill):
 header = ['Range', 'Path','Except' ,'Done']
 root = Tk()
 root.title('Stop-AutomationBot')
-root.geometry('400x600')
+root.geometry('400x700')
 hello = Label(root , text='Created by ThanhCong', fg='#2631ab')
 hello.place(relx=0.6 , rely=0.9)
-startButton = Button(root , text='Start' , command=lambda: run(inputPathCom.get() ,inputPathCode.get() , inputPathChrome.get() , inputBill.get()))
+startButton = Button(root , text='Start' , command=lambda: run(inputPathCom.get() ,inputPathCode.get() , inputPathChrome.get() , inputBill.get() , [CheckVarHandle1.get() , CheckVarHandle2.get(),  CheckVarHandle3.get()]))
 startButton.place(relx=0.5,rely=0.85)
 container = ttk.Frame(root, width=400, height=100)
 container.pack(fill='both', expand=True)
@@ -134,5 +145,36 @@ labelBill = Label(rangeInputFrame6, text='BillNumber')
 inputBill = Entry(rangeInputFrame6)
 labelBill.pack(side=LEFT , anchor=NW , padx=20)
 inputBill.pack(side=RIGHT , anchor=NE , padx=40)
+
+
+def AllHandle(value):
+    if value == 1:
+        for cb in CBoxs:
+            cb.select()
+    else:
+        for cb in CBoxs:
+            cb.deselect()
+
+CheckVarHandle1 = IntVar()
+CheckVarHandle2 = IntVar()
+CheckVarHandle3 = IntVar()
+CheckVarAll = IntVar()
+CHandle1 = Checkbutton(root, text = "Handle 1", variable = CheckVarHandle1, \
+                 onvalue = 1, offvalue = 0)
+CHandle2 = Checkbutton(root, text = "Handle 2", variable = CheckVarHandle2, \
+                 onvalue = 1, offvalue = 0)
+CHandle3 = Checkbutton(root, text = "Handle 3", variable = CheckVarHandle3, \
+                 onvalue = 1, offvalue = 0)
+
+CheckVars = [CheckVarHandle1 , CheckVarHandle2 , CheckVarHandle3]
+CBoxs = [CHandle1 , CHandle2 ,CHandle3]
+
+CAll = Checkbutton(root, text = "All", variable = CheckVarAll, \
+                 onvalue = 1, offvalue = 0 , command=lambda:AllHandle(CheckVarAll.get()))
+CHandle1.pack()
+CHandle2.pack()
+CHandle3.pack()
+CAll.pack()
+
 
 root.mainloop()
