@@ -32,13 +32,7 @@ def run(inputPathCom , procedure):
             print(traceback.format_exc())
             print('exception happend and cant handle it')
             continue
-def AllHandle(value):
-    if value == 1:
-        for cb in CBoxs:
-            cb.select()
-    else:
-        for cb in CBoxs:
-            cb.deselect()
+
 header = ['Range', 'Path','Except' ,'Done']
 root = Tk()
 root.title('Stop-AutomationBot')
@@ -122,6 +116,15 @@ labelBill = Label(rangeInputFrame6, text='BillNumber')
 inputBill = Entry(rangeInputFrame6)
 labelBill.pack(side=LEFT , anchor=NW , padx=20)
 inputBill.pack(side=RIGHT , anchor=NE , padx=40)
+
+
+def AllHandle(value):
+    if value == 1:
+        for cb in CBoxs:
+            cb.select()
+    else:
+        for cb in CBoxs:
+            cb.deselect()
 
 CheckVarStart = IntVar()
 CheckVarClose = IntVar()
