@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="893c056e-80be-4862-9164-04a6946aa285" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/Socket/ServerFirst.py" beforeDir="false" afterPath="$PROJECT_DIR$/Socket/ServerFirst.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Socket/client.py" beforeDir="false" afterPath="$PROJECT_DIR$/Socket/client.py" afterDir="false" />
-    </list>
+    <list default="true" id="893c056e-80be-4862-9164-04a6946aa285" name="Default Changelist" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -36,6 +33,9 @@
       <updated>1611740009577</updated>
     </task>
     <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="WindowStateProjectService">
     <state x="549" y="167" key="FileChooserDialogImpl" timestamp="1611740072942">

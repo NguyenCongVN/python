@@ -1,0 +1,6 @@
+build
+venv
+.idea
+*pyc
+Selenium/result/*
+*rar
