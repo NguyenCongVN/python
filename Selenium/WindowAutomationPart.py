@@ -1,120 +1,96 @@
 import subprocess
+import time
 import traceback
 from subprocess import Popen
-from typing import re
 
 from pywinauto import Desktop
 import pyautogui
-import pywinauto
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
-from email.mime.multipart import MIMEMultipart
-from Selenium import AutomationWorking
-import os
-import smtplib
-import random
-import xlrd
-from Selenium import EmailPartHandler
-from tkinter import Tk
 from pywinauto.application import Application
+from InteractHelper import captureScreen, waitThreadAndJoin, detectImageAndClickCenterSingle, detectImageAndClickCenter, \
+    detectImageAndClickLeft, detectImageAndClickLeftTopNew, DoiThoiGian, copyStringToClipboard, detectImage
+from InteractHelper import LayCacTenWindow
+
 pyautogui.FAILSAFE = False
 cap = 0
 
-def copyStringToClipboard(text):
-    r = Tk()
-    r.withdraw()
-    r.clipboard_clear()
-    r.clipboard_append(text)
-    r.update()  # now it stays on the clipboard after the window is closed
-    r.destroy()
 
-def findUserAndPassInCsv(id , csv_path):
-    workbook = xlrd.open_workbook(csv_path)
-    worksheet = workbook.sheet_by_name('KU')
-    return [worksheet.cell(id, 1 ).value , worksheet.cell(id, 5 ).value]
-def InitSendMail(userName , passWord):
-    count = 0
-    while count < 5:
-        try:
-            s = smtplib.SMTP_SSL('smtp.gmail.com', 465)
-            s.ehlo()
-            s.login(userName, passWord)
-            return s
-        except:
-            count = count + 1
-            print('Failed to connection Smtp server time {count}'.format(count=count))
-            print(traceback.format_exc())
-            continue
-
-
-def SendMail(ImgFileName , range , fromAd , toAd , smtpServer):
-    count = 0
-    while count < 5:
-        try:
-            img_data = open(ImgFileName, 'rb').read()
-            msg = MIMEMultipart()
-            msg['Subject'] = 'result stop {range}'.format(range=range)
-            msg['From'] = fromAd
-            msg['To'] = toAd
-            text = MIMEText("Result from {range}".format(range=range))
-            msg.attach(text)
-            image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
-            msg.attach(image)
-            smtpServer.sendmail(fromAd, toAd , msg.as_string())
-            break
-        except:
-            print('fail to send result email time {count}'.format(count=count))
-            print(traceback.format_exc())
-            count = count + 1
-            continue
-def OpenWindow(path):
-    Popen(path, shell=True)
-    dlg = Desktop(backend="uia")['EAA KUUUUU - Remote Desktop Connection Manager v2.72']
-    AutomationWorking.waitThreadAndJoin(5)
-    dlg.wait('visible')
-    return dlg
-
-def startComputer(window , start , stop , exceptComOut):
-    TreeItems = window.TreeItem
-    check = start
-    while check <= stop:
-        if str(check) in exceptComOut:
-            temp = check
-            print(check)
-            check = int(exceptComOut[exceptComOut.index(str(check)) + 1])
-            print('see replace with {old} with {new}'.format(old=temp , new=check))
-            for item in TreeItems.descendants():
-                if str(check) in str(item.texts()):
-                    print('starting computer {check}'.format(check=check))
-                    item.double_click_input(button='left', coords=(None, None))
-                    check = temp
-                    print(check)
-                    check = check + 1
-                    break
-        else:
-            for item in TreeItems.descendants():
-                if str(check) in str(item.texts()):
-                    print('starting computer {check}'.format(check=check))
-                    item.double_click_input(button='left', coords=(None, None))
-                    check = check + 1
-                    break
-def copyFile(path , fileName):
-    import subprocess
-    subprocess.Popen(r'explorer /select,"{path}"'.format(path=path))
-    AutomationWorking.waitThreadAndJoin(5)
-    dlg = Desktop(backend="uia")['Google Drive']
-    # put window on top
-    dlg.minimize()
-    dlg.restore()
-    file = dlg[fileName]
-    file.click_input()
-    file.type_keys('^c')
-
-def pasteFile(window , number , start):
+# Chọn máy với tên
+def chooseComputerWithName(window, tenMay):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            print('pasting computer {check}'.format(check=number))
+        try:
+            if str(tenMay) in str(item.texts()):
+                print('Đang chọn máy {check}'.format(check=tenMay))
+                # Nhấp chuột trái chọn máy
+                item.click_input(button='left', coords=(None, None))
+        except Exception as err:
+            print(err)
+            print('Có lỗi xảy ra {err} trong quá trình chọn máy'.format(err=err))
+
+
+# Mở Remote Destop
+def OpenWindow(path, tuKhoa):
+    Popen(path, shell=True)
+    dlg = None
+    # Đợi 5s để cửa sổ mở ra hoàn toàn
+    waitThreadAndJoin(5)
+
+    #
+    tenCacWindow = LayCacTenWindow()
+
+    for tenWindow in tenCacWindow:
+        if tuKhoa in tenWindow:
+            print('Thấy cửa sổ khớp {tenWindow}'.format(tenWindow=tenWindow))
+            dlg = Desktop(backend="uia")[tenWindow]
+            break
+    dlg.wait('visible')
+
+    # Trả về cửa sổ sau khi đã mở thành công
+    return dlg
+
+
+# Start Computer theo khoảng
+def startComputer(window, gioiHanMay):
+    # Đếm số máy mở
+    count = 0
+    # Lấy treeItems từ các
+    TreeItems = window.TreeView.TreeItem
+    # Lặp trong các item nằm trong cây
+    for item in TreeItems.descendants():
+        if count == gioiHanMay:
+            break
+        else:
+            count = count + 1
+        print('Đang mở máy {check}'.format(check=item.texts()))
+        # Nhấp chuột 2 lần vào item máy tính
+        item.double_click_input(button='left', coords=(None, None))
+
+
+# Copy một file từ trong máy
+def copyFile(path, fileName):
+    import subprocess
+    # mở explorer và chọn path
+    subprocess.Popen(r'explorer /select,"{path}"'.format(path=path))
+    # Đợi 5s để explorer sẵn sàng
+    waitThreadAndJoin(5)
+    #
+    dlg = Desktop(backend="uia")['Google Drive']
+    # Để cửa sổ lên đầu
+    dlg.minimize()
+    dlg.restore()
+    # Chọn file trong cửa sổ explore với path đã mở
+    file = dlg[fileName]
+    file.click_input()
+    # Nhấn Ctrl+C
+    file.type_keys('^c')
+
+
+# paste file
+def pasteFile(window, tenMay):
+    TreeItems = window.TreeItem
+    for item in TreeItems.descendants():
+        if str(tenMay) in str(item.texts()):
+            print('pasting computer {check}'.format(check=tenMay))
             item.click_input(button='left', coords=(None, None))
             try:
                 staticPanel = window['Input Capture WindowPane']
@@ -124,43 +100,23 @@ def pasteFile(window , number , start):
             except:
                 pass
             break
-def closeOpeningWindow(window , number , start):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            count = 0
-            while count < 5:
-                print('closing opening window computer {check}'.format(check=number))
-                item.click_input(button='left', coords=(None, None))
-                try:
-                    staticPanel = window['Input Capture WindowPane']
-                    # staticPanel.move_mouse_input(coords=(400, 400))
-                    staticPanel.double_click_input(button='left', coords=(1200, 700))
-                    staticPanel.click_input(button='left', coords=(1200, 700))
-                    staticPanel.type_keys('%{F4}')
-                    break
-                except:
-                    # print(traceback.format_exc())
-                    startComputer(window , start , start , [])
-                    AutomationWorking.waitThreadAndJoin(20)
-                    count = count + 1
-                    continue
-            if count == 5:
-                print('close opening window computer {check} fail'.format(check=number))
-def openFile(window , number):
+
+
+# Mở file
+def openFile(window, number):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
         if str(number) in str(item.texts()):
             item.double_click_input(button='left', coords=(None, None))
             break
-    AutomationWorking.waitThreadAndJoin(5)
+    waitThreadAndJoin(5)
     r = None
     count = 0
     while r is None:
         try:
             if count == 20:
                 break
-            r = pyautogui.locateOnScreen('testing.png' ,confidence=0.8)
+            r = pyautogui.locateOnScreen('testing.png', confidence=0.8)
             point = pyautogui.center(r)
             pointx, pointy = point
             pyautogui.doubleClick(pointx, pointy)
@@ -168,101 +124,8 @@ def openFile(window , number):
             count = count + 1
             continue
 
-def handleComRange(window, start , stop , windowPath , exceptComOut):
-    try:
-        startComputer(window, start, stop ,exceptComOut)
-    except:
-        # print(traceback.format_exc())
-        # close app
-        p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
-        p.wait()
-        print(p.returncode)
-        OpenWindow(windowPath)
-        AutomationWorking.waitThreadAndJoin(5)
-        startComputer(window, start, stop , exceptComOut)
-    AutomationWorking.waitThreadAndJoin(100)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            closeOpeningWindow(window, replaceCom , start)
-        else:
-            closeOpeningWindow(window, i, start)
-    AutomationWorking.waitThreadAndJoin(10)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            pasteFile(window, replaceCom, start)
-        else:
-            pasteFile(window, i , start )
-    AutomationWorking.waitThreadAndJoin(60)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            openFile(window, replaceCom)
-        else:
-            openFile(window, i )
-    AutomationWorking.waitThreadAndJoin(200)
-    img = pyautogui.screenshot()
-    img.save(r'.\result\result-{start}-{stop}.png'.format(start=start , stop=stop))
-    # close app
-    p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
-    p.wait()
-    print(p.returncode)
-    AutomationWorking.waitThreadAndJoin(5)
-    smtpServer = InitSendMail('nguyenconggg1', 'hocngaydi123')
-    SendMail(r'.\result\result-{start}-{stop}.png'.format(start=start , stop=stop) ,'{start}-{stop}'.format(start=start,stop=stop) , 'nguyenconggg1@gmail.com'
-             , 'chubodoi.2910@gmail.com' , smtpServer)
 
-def detectImageAndClickCenterSingle(imagePath):
-    r = None
-    count = 0
-    while r is None:
-        try:
-            if count == 5:
-                break
-            r = pyautogui.locateOnScreen(imagePath, confidence=0.75)
-            point = pyautogui.center(r)
-            pointx, pointy = point
-            pyautogui.click(pointx, pointy)
-        except:
-            count = count + 1
-            continue
-
-def detectImageAndClickCenter(imagePath):
-    r = None
-    count = 0
-    while r is None:
-        try:
-            if count == 5:
-                captureScreen(random.randrange(1 , 100 , 1))
-                return 1
-            r = pyautogui.locateOnScreen(imagePath, confidence=0.7)
-            point = pyautogui.center(r)
-            pointx, pointy = point
-            pyautogui.doubleClick(pointx, pointy)
-            return 0
-        except:
-            count = count + 1
-            continue
-
-def detectImageAndClickLeft(imagePath , coord):
-    r = None
-    count = 0
-    while r is None:
-        try:
-            if count == 5:
-                captureScreen(random.randrange(1 , 100 , 1))
-                return 1
-            r = pyautogui.locateOnScreen(imagePath, confidence=0.7)
-            point = pyautogui.center(r)
-            pointx, pointy = point
-            pyautogui.doubleClick(pointx + coord, pointy)
-            return 0
-        except:
-            count = count + 1
-            continue
-
-def openFileCustomised(window , number):
+def openFileCustomised(window, number):
     TreeItems = window.TreeItem
     for item in TreeItems.descendants():
         if str(number) in str(item.texts()):
@@ -271,228 +134,215 @@ def openFileCustomised(window , number):
     if detectImageAndClickCenter('./ChiHa/codeRun1.jpg') == 1:
         detectImageAndClickCenter('./ChiHa/codeRun.jpg')
 
-def enterCodeAndOke(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenter('./ChiHa/enterCode1.jpg')
-    AutomationWorking.waitThreadAndJoin(2)
-    pyautogui.write(str(number), interval=0.25)
-    AutomationWorking.waitThreadAndJoin(2)
-    detectImageAndClickCenter('./ChiHa/OkeButton.jpg')
 
-def pressOptionFirefox(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenter('./ChiHa/OptionButton.jpg')
-
-def pressHelpButton(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenter('./ChiHa/helpButton.jpg')
-    detectImageAndClickCenterSingle('./ChiHa/helpButton.jpg')
-
-def pressAboutButton(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenter('./ChiHa/AboutFireFoxButton.jpg')
-
-def pressCheckUpdateButton(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenter('./ChiHa/CheckUpdateButton.jpg')
-    AutomationWorking.waitThreadAndJoin(5)
-    detectImageAndClickCenter('./ChiHa/updateButton.jpg')
-    AutomationWorking.waitThreadAndJoin(5)
-    pyautogui.click()
+def tuoiCay(soLanTuoi, soMay, gioiHan=5):
+    lanThu = 0
+    while True:
+        result = detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\TuoiNuoc.png', dichX=10, dichY=10,
+                                               gioiHan=5)
+        # Nếu như result = 0 -> Tìm thấy
+        # nếu như result = 1 -> không tìm thấy
+        if result == 0:
+            print('Tìm thấy cây chưa tưới. Đã tiến hành tưới')
+            soLanTuoi[soMay] = soLanTuoi[soMay] + 1
+            print(f'Số lần tưới thành công {soLanTuoi[soMay]}')
+            if soLanTuoi[soMay] == 15:
+                print('Đã đủ lượt tưới ! Thoát')
+                return 1
+            return 0
+        else:
+            print('Không tìm thấy cây cần tưới ! Thử kéo xuống dưới')
+            # Kéo xuống dưới 70
+            pyautogui.scroll(-70)
+            lanThu = lanThu + 1
+            if lanThu == gioiHan:
+                print('Vượt quá số lần thử! Bỏ qua')
+                return 1
 
 
+def XuLyMainProcess(remoteWindow, gioiHanMay, linkWorldMap, linkSunMap, linkMoonMap):
+    # Cho rằng đang ở màn hình: chrome
+    # 1. Vào lại trang maps
+    # 2. Vào World Maps
+    soLanTuoiWorldMap = []
+    # Khởi tạo list số lần tưới
+    for i in range(gioiHanMay):
+        soLanTuoiWorldMap.append(0)
 
-
-def pressEmailPasswordAndLogin(window , number , inputPathThunderBoth):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    [email , password] = findUserAndPassInCsv(number ,r'C:\Users\Admin\Downloads\KDP February 2021.xlsx' )
+    # 1. Vào lại trang chính
     count = 0
-    while count < 8:
-        if detectImageAndClickCenter('./ChiHa/Email.jpg') == 1:
-            for item in TreeItems.descendants():
-                if str(number) in str(item.texts()):
-                    item.double_click_input(button='left', coords=(None, None))
-                    break
+    # Lấy treeItems từ các
+    TreeItems = remoteWindow.TreeView.TreeItem
+    # Lặp trong các item nằm trong cây
+    for item in TreeItems.descendants():
+        if count == gioiHanMay:
+            break
+        else:
             count = count + 1
-            continue
-        break
-    AutomationWorking.waitThreadAndJoin(5)
-    copyStringToClipboard(email)
+        # Delay để đợi remote window sẵn sàng
+        print('Đợi 3s để đợi remote window sẵn sàng')
+        time.sleep(3)
+        print('Đang mở máy {check}'.format(check=item.texts()))
+        # Nhấp chuột 1 lần vào item máy tính
+        item.click_input(button='left', coords=(None, None))
+
+        # Đợi 5s để remote destop load
+        DoiThoiGian(5)
+
+        # Tắt google chrome - Tìm nút x và nhấn
+        print('Đang tắt google chrome')
+        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\TatGoogleChrome.png', gioiHan=10)
+
+        # Đợi 5s để chrome tắt hẳn
+        DoiThoiGian(5)
+
+        # Mở lại google chrome
+        print('Mở lại google chrome')
+        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\MoChrome.png', dichX=2, dichY=3)
+
+        # Đợi 5s để google chrome mở
+        DoiThoiGian(5)
+
+        # Nhập link
+        print('Đang nhập link')
+        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapUrl.png', dichX=40, dichY=20)
+
+        # Điền Link
+        print('Đang điền link')
+        copyStringToClipboard('blockfarm.club')
+        DoiThoiGian(2)
+        print('Paste và Enter')
+        pyautogui.hotkey('ctrl', 'v')
+        pyautogui.press('enter')
+
+        # Nhấn Login
+        print('Nhấn Login')
+        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\LoginGame.png', dichX=20, dichY=20)
+
+        # Đợi 5s
+        DoiThoiGian(5)
+
+        # Vào Farm
+        print('Nhấn vào Farm')
+        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\farm.png', dichX=20, dichY=20)
+
+        # Đợi 5s
+        DoiThoiGian(5)
+
+        # Kiểm tra xem MetaMask hiện hay không
+        print('Kiểm tra MetaMask')
+
+        # Nếu như 0 -> Có hiện
+        # Nếu như 1 -> Không hiện
+        while detectImage(r'E:\python\Selenium\PhotosGame\CheckMetaMask.png', gioiHan=5) == 0:
+            print('Có xuất hiện metamask ! Hãy đăng nhập!')
+
+        print('Đã tắt metamask ! Tiếp tục')
+
+        # Nhấn vào map
+        print('Nhấn vào maps')
+        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\maps.png', dichX=20, dichY=20)
+
+    # --------------------------------------------------------------------------------------------------
+
+    # 2. Tới phần mở world map
+    # Lặp trong các item nằm trong cây
+    print('Tiến hành mở world map')
+    for i in range(15):
+        for link in linkWorldMap:
+            while True:
+                vaoLinkMoi = False
+                count = 0
+                for item in TreeItems.descendants():
+                    if count == gioiHanMay:
+                        print('Xong đợt 1 ! Đợi 30s trước khi tiếp tục')
+                        DoiThoiGian(30)
+                    else:
+                        count = count + 1
+                    # Delay để đợi remote window sẵn sàng
+                    print('Đợi 3s để đợi remote window sẵn sàng')
+                    time.sleep(3)
+                    print('Đang chọn máy {check}'.format(check=item.texts()))
+                    # Nhấp chuột 1 lần vào item máy tính
+                    item.click_input(button='left', coords=(None, None))
+
+                    # Đợi 5s để remote destop load
+                    DoiThoiGian(5)
+                    # Vào wold map
+                    print('Nhấn chọn world map')
+                    detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\worldmap.png', dichX=20, dichY=20)
+
+                    # Đợi 5s
+                    DoiThoiGian(5)
+
+                    # Bắt đầu vào link với world map
+                    print('Vào link world map')
+
+                    # Đợi 5s
+                    DoiThoiGian(5)
+
+                    # Vào từng link
+                    detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapLinkMap.png', dichY=20)
+                    pyautogui.hotkey('ctrl', 'a')
+
+                    # Đợi 5s
+                    DoiThoiGian(5)
+
+                    # copy link vào clipboard
+                    copyStringToClipboard(link)
+
+                    # Đợi 5s
+                    DoiThoiGian(2)
+
+                    # paste link và truy cập
+                    print('Paste và Enter')
+                    pyautogui.hotkey('ctrl', 'v')
+                    pyautogui.press('enter')
+
+                    # Đợi 5s
+                    DoiThoiGian(5)
+
+                    # Tiến hành tưới cây
+                    if tuoiCay(soLanTuoiWorldMap, soMay=count - 1, gioiHan=2) == 1:
+                        print('Hết cây! Chuyển sang link mới')
+                        vaoLinkMoi = True
+                        break
+                if vaoLinkMoi:
+                    break
+
+    # 2.
+
+
+if __name__ == "__main__":
     try:
-        staticPanel = window['Input Capture WindowPane']
-        # staticPanel.move_mouse_input(coords=(400, 400))
-        staticPanel.type_keys('^v')
-    except:
-        pass
-    detectImageAndClickCenter('./ChiHa/Password.jpg')
-    AutomationWorking.waitThreadAndJoin(5)
-    copyStringToClipboard(password)
-    try:
-        staticPanel = window['Input Capture WindowPane']
-        # staticPanel.move_mouse_input(coords=(400, 400))
-        staticPanel.type_keys('^v')
-    except:
-        pass
-    detectImageAndClickCenter('./ChiHa/SignIn.jpg')
+        # Link vào world map
+        linkWorldMap = ['https://blockfarm.club/farm/mapview/world-map/4559',
+                        'https://blockfarm.club/farm/mapview/world-map/6060']
 
-def OpenThunderBirdAndRefresh(thunderbirdPath):
-    app = Application(backend="uia").start(thunderbirdPath)
-def OpenWindowAndCopyLink(window , number , email , path1):
-    window.set_focus()
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    response = EmailPartHandler.CopyLink(email ,path1)
-    if response != 0:
-        copyStringToClipboard(response)
-        try:
-            detectImageAndClickCenterSingle('./ChiHa/FireFoxClick.jpg')
-            AutomationWorking.waitThreadAndJoin(8)
-            detectImageAndClickCenterSingle('./ChiHa/PlusImage.jpg')
-            staticPanel = window['Input Capture WindowPane']
-            # staticPanel.move_mouse_input(coords=(400, 400))
-            staticPanel.type_keys('^v')
-            AutomationWorking.waitThreadAndJoin(2)
-            staticPanel.type_keys('{ENTER}')
-            AutomationWorking.waitThreadAndJoin(6)
-            detectImageAndClickCenterSingle('./ChiHa/Approve.jpg')
-            AutomationWorking.waitThreadAndJoin(3)
-            detectImageAndClickCenterSingle('./ChiHa/KindleLogo.jpg')
-            AutomationWorking.waitThreadAndJoin(3)
-            detectImageAndClickCenter('./ChiHa/RefreshLink.jpg')
-        except:
-            pass
-def largerKindle(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenterSingle('./ChiHa/maximize.jpg')
+        # Link vào moon map
+        linkMoonMap = ['https://blockfarm.club/farm/mapview/moon-map/4922',
+                       'https://blockfarm.club/farm/mapview/moon-map/5830',
+                       'https://blockfarm.club/farm/mapview/moon-map/4541']
 
-def OpenBook(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickLeft('./ChiHa/OpenBook.jpg' , 70)
+        # Link vào sun map
+        linkSunMap = ['https://blockfarm.club/farm/mapview/sun-map/4084',
+                      'https://blockfarm.club/farm/mapview/sun-map/3152',
+                      'https://blockfarm.club/farm/mapview/sun-map/5852']
 
-def closeOpen(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenterSingle('./ChiHa/Closing.jpg')
+        # Mở remote
+        remoteWindow = OpenWindow(r'C:\Users\chubo\Desktop\RDCMan.exe', 'Remote')
 
-def HideNote(window , number):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(number) in str(item.texts()):
-            item.double_click_input(button='left', coords=(None, None))
-            break
-    detectImageAndClickCenterSingle('./ChiHa/HideNote.jpg')
+        # Khởi động các máy
+        # TODO: Fix lỗi một số máy không khởi động
+        startComputer(remoteWindow, gioiHanMay=2)
 
-def captureScreen(number):
-    im1 = pyautogui.screenshot()
-    im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j = number))
-    AutomationWorking.waitThreadAndJoin(1)
-def handleComRangeCustomized(window, start , stop , windowPath , exceptComOut , pathThunderBirdData , pathThunderBirdExe):
-    csvPath = r'C:\Users\Admin\Downloads\KDP February 2021.xlsx'
-    try:
-        startComputer(window, start, stop ,exceptComOut)
-    except:
-        # close app
-        p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
-        p.wait()
-        print(p.returncode)
-        OpenWindow(windowPath)
-        AutomationWorking.waitThreadAndJoin(5)
-        startComputer(window, start, stop , exceptComOut)
-    print('start done')
-    AutomationWorking.waitThreadAndJoin(10)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            pressEmailPasswordAndLogin(window , replaceCom , pathThunderBirdData)
-            AutomationWorking.waitThreadAndJoin(5)
-            try:
-                detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
-            except:
-                pass
-        else:
-            pressEmailPasswordAndLogin(window , i , pathThunderBirdData)
-            AutomationWorking.waitThreadAndJoin(3)
-            try:
-                detectImageAndClickCenterSingle('./ChiHa/NotNow.jpg')
-            except:
-                pass
-    OpenThunderBirdAndRefresh(pathThunderBirdExe)
-    AutomationWorking.waitThreadAndJoin(10)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            [email, password] = findUserAndPassInCsv(replaceCom, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
-            OpenWindowAndCopyLink(window , replaceCom , email , pathThunderBirdData )
-        else:
-            [email, password] = findUserAndPassInCsv(i, r'C:\Users\Admin\Downloads\KDP February 2021.xlsx')
-            OpenWindowAndCopyLink(window, i, email , pathThunderBirdData)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            largerKindle(window , replaceCom)
-        else:
-            largerKindle(window, i)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            OpenBook(window , replaceCom)
-        else:
-            OpenBook(window, i)
-    AutomationWorking.waitThreadAndJoin(8)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            closeOpen(window , replaceCom)
-        else:
-            closeOpen(window, i)
-    AutomationWorking.waitThreadAndJoin(8)
-    for i in range(start, stop + 1):
-        if str(i) in exceptComOut:
-            replaceCom = int(exceptComOut[exceptComOut.index(str(i)) + 1])
-            HideNote(window , replaceCom)
-        else:
-            HideNote(window, i)
-    p = Popen("KillRDC.bat", shell=True, stdout=subprocess.PIPE)
-    p.wait()
-    print(p.returncode)
-    p = Popen("KillThunderBird.bat", shell=True, stdout=subprocess.PIPE)
-    p.wait()
-    print(p.returncode)
+        # Tạm dừng 15s để các máy sẵn sàng
+        time.sleep(15)
+
+        # Quá trình xử lý main process
+        XuLyMainProcess(remoteWindow, gioiHanMay=2, linkMoonMap=linkMoonMap, linkWorldMap=linkWorldMap,
+                        linkSunMap=linkSunMap)
+
+    except Exception as err:
+        print('Có lỗi xảy ra')
+        print(traceback.print_exc())
