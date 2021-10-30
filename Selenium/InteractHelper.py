@@ -5,7 +5,7 @@ import random
 from tkinter import Tk
 from subprocess import Popen, PIPE
 
-from python_imagesearch.imagesearch import imagesearch
+from python_imagesearch.imagesearch import imagesearch, imagesearchMultiple
 
 
 class waitThread(threading.Thread):
@@ -81,6 +81,46 @@ def detectImageAndClickLeftTopNew(imagePath, dichX=0, dichY=0, gioiHan=None):
                     return 1
                 count = count + 1
 
+
+def detectImageAndClickLeftTopNewSingle(imagePath, dichX=0, dichY=0, gioiHan=None):
+    count = 0
+    while True:
+        pos = imagesearch(imagePath)
+        if pos[0] != -1:
+            print("Tìm thấy ở vị trí : ", pos[0], pos[1])
+            pyautogui.click(pos[0] + dichX, pos[1] + dichY)
+            return 0
+        else:
+            print("Không tìm thấy ảnh ! Thử lại sau 2s")
+            time.sleep(2)
+            if gioiHan is not None:
+                if count == gioiHan:
+                    return 1
+                count = count + 1
+
+
+def detectAllImage(imagePath, gioiHan=None):
+    count = 0
+    while True:
+        locations = imagesearchMultiple(imagePath)
+        if len(locations) is not 0:
+            for location in locations:
+                print("Tìm thấy ở vị trí : ", location[0], location[1])
+            return locations
+        else:
+            print("Không tìm thấy ảnh ! Thử lại sau 2s")
+            time.sleep(2)
+            if gioiHan is not None:
+                if count == gioiHan:
+                    return 1
+                count = count + 1
+
+
+def clickWithLocation(location, dichX=0, dichY=0):
+    pyautogui.click(location[1] + dichX, location[0] + dichY)
+    print(f'Đã Cick {location}')
+
+
 def detectImage(imagePath, gioiHan=None):
     count = 0
     while True:
@@ -95,6 +135,7 @@ def detectImage(imagePath, gioiHan=None):
                 if count == gioiHan:
                     return 1
                 count = count + 1
+
 
 def detectImageAndClickLeft(imagePath, coord):
     r = None

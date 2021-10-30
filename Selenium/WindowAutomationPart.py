@@ -1,14 +1,14 @@
-import subprocess
+import time
 import time
 import traceback
 from subprocess import Popen
 
-from pywinauto import Desktop
 import pyautogui
-from pywinauto.application import Application
-from InteractHelper import captureScreen, waitThreadAndJoin, detectImageAndClickCenterSingle, detectImageAndClickCenter, \
-    detectImageAndClickLeft, detectImageAndClickLeftTopNew, DoiThoiGian, copyStringToClipboard, detectImage
+from pywinauto import Desktop
+
 from InteractHelper import LayCacTenWindow
+from InteractHelper import waitThreadAndJoin, detectImageAndClickCenter, \
+    detectImageAndClickLeftTopNew, DoiThoiGian, detectAllImage, clickWithLocation
 
 pyautogui.FAILSAFE = False
 cap = 0
@@ -160,16 +160,15 @@ def tuoiCay(soLanTuoi, soMay, gioiHan=5):
                 return 1
 
 
-def XuLyMainProcess(remoteWindow, gioiHanMay, linkWorldMap, linkSunMap, linkMoonMap):
-    # Cho rằng đang ở màn hình: chrome
-    # 1. Vào lại trang maps
-    # 2. Vào World Maps
-    soLanTuoiWorldMap = []
-    # Khởi tạo list số lần tưới
-    for i in range(gioiHanMay):
-        soLanTuoiWorldMap.append(0)
+def XuLyMainProcess(remoteWindow, gioiHanMay):
+    # Cho rằng đang ở màn hình: Destop
+    # 1. Chọn folder để vào telegram
+    # 2. Chạy telegram.exe
+    # 3. Search Link Bot
+    # 4. Start Bot
+    # 5. ......
 
-    # 1. Vào lại trang chính
+    # 1. Chọn folder để vào telegram
     count = 0
     # Lấy treeItems từ các
     TreeItems = remoteWindow.TreeView.TreeItem
@@ -180,168 +179,160 @@ def XuLyMainProcess(remoteWindow, gioiHanMay, linkWorldMap, linkSunMap, linkMoon
         else:
             count = count + 1
         # Delay để đợi remote window sẵn sàng
-        print('Đợi 3s để đợi remote window sẵn sàng')
-        time.sleep(3)
+        DoiThoiGian(3)
         print('Đang mở máy {check}'.format(check=item.texts()))
         # Nhấp chuột 1 lần vào item máy tính
         item.click_input(button='left', coords=(None, None))
 
-        # Đợi 5s để remote destop load
-        DoiThoiGian(5)
-
-        # Tắt google chrome - Tìm nút x và nhấn
-        print('Đang tắt google chrome')
-        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\TatGoogleChrome.png', gioiHan=10)
-
-        # Đợi 5s để chrome tắt hẳn
-        DoiThoiGian(5)
-
-        # Mở lại google chrome
-        print('Mở lại google chrome')
-        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\MoChrome.png', dichX=2, dichY=3)
-
-        # Đợi 5s để google chrome mở
-        DoiThoiGian(5)
-
-        # Nhập link
-        print('Đang nhập link')
-        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapUrl.png', dichX=40, dichY=20)
-
-        # Điền Link
-        print('Đang điền link')
-        copyStringToClipboard('blockfarm.club')
+        # Đợi 2s để remote destop load
         DoiThoiGian(2)
-        print('Paste và Enter')
-        pyautogui.hotkey('ctrl', 'v')
-        pyautogui.press('enter')
 
-        # Nhấn Login
-        print('Nhấn Login')
-        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\LoginGame.png', dichX=20, dichY=20)
+        # Tìm vị trí tất cả các folder
+        print('Tìm vị trí tất cả các folder')
+        folderLocations = detectAllImage(r'E:\python\Selenium\folderTelegram\folder.png')
 
-        # Đợi 5s
-        DoiThoiGian(5)
+        print('foler Locations ', folderLocations)
 
-        # Vào Farm
-        print('Nhấn vào Farm')
-        detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\farm.png', dichX=20, dichY=20)
+        # Mở folder
+        print('Đang mở folder đầu tiên')
+        for location in folderLocations:
+            print('Location : ', location)
+            clickWithLocation(location)
 
-        # Đợi 5s
-        DoiThoiGian(5)
-
-        # Kiểm tra xem MetaMask hiện hay không
-        print('Kiểm tra MetaMask')
-
-        # Nếu như 0 -> Có hiện
-        # Nếu như 1 -> Không hiện
-        while detectImage(r'E:\python\Selenium\PhotosGame\CheckMetaMask.png', gioiHan=5) == 0:
-            print('Có xuất hiện metamask ! Hãy đăng nhập!')
-
-        print('Đã tắt metamask ! Tiếp tục')
-
-        # Nhấn vào map
-        print('Nhấn vào maps')
-        detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\maps.png', dichX=20, dichY=20)
-
-    # --------------------------------------------------------------------------------------------------
-
-    # 2. Tới phần mở world map
-    # Lặp trong các item nằm trong cây
-    print('Tiến hành mở world map')
-    for i in range(15):
-        for link in linkWorldMap:
-            while True:
-                vaoLinkMoi = False
-                count = 0
-                for item in TreeItems.descendants():
-                    if count == gioiHanMay:
-                        print('Xong đợt 1 ! Đợi 30s trước khi tiếp tục')
-                        DoiThoiGian(30)
-                    else:
-                        count = count + 1
-                    # Delay để đợi remote window sẵn sàng
-                    print('Đợi 3s để đợi remote window sẵn sàng')
-                    time.sleep(3)
-                    print('Đang chọn máy {check}'.format(check=item.texts()))
-                    # Nhấp chuột 1 lần vào item máy tính
-                    item.click_input(button='left', coords=(None, None))
-
-                    # Đợi 5s để remote destop load
-                    DoiThoiGian(5)
-                    # Vào wold map
-                    print('Nhấn chọn world map')
-                    detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\worldmap.png', dichX=20, dichY=20)
-
-                    # Đợi 5s
-                    DoiThoiGian(5)
-
-                    # Bắt đầu vào link với world map
-                    print('Vào link world map')
-
-                    # Đợi 5s
-                    DoiThoiGian(5)
-
-                    # Vào từng link
-                    detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapLinkMap.png', dichY=20)
-                    pyautogui.hotkey('ctrl', 'a')
-
-                    # Đợi 5s
-                    DoiThoiGian(5)
-
-                    # copy link vào clipboard
-                    copyStringToClipboard(link)
-
-                    # Đợi 5s
-                    DoiThoiGian(2)
-
-                    # paste link và truy cập
-                    print('Paste và Enter')
-                    pyautogui.hotkey('ctrl', 'v')
-                    pyautogui.press('enter')
-
-                    # Đợi 5s
-                    DoiThoiGian(5)
-
-                    # Tiến hành tưới cây
-                    if tuoiCay(soLanTuoiWorldMap, soMay=count - 1, gioiHan=2) == 1:
-                        print('Hết cây! Chuyển sang link mới')
-                        vaoLinkMoi = True
-                        break
-                if vaoLinkMoi:
-                    break
+    #     # Đợi 5s để chrome tắt hẳn
+    #     DoiThoiGian(5)
+    #
+    #     # Mở lại google chrome
+    #     print('Mở lại google chrome')
+    #     detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\MoChrome.png', dichX=2, dichY=3)
+    #
+    #     # Đợi 5s để google chrome mở
+    #     DoiThoiGian(5)
+    #
+    #     # Nhập link
+    #     print('Đang nhập link')
+    #     detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapUrl.png', dichX=40, dichY=20)
+    #
+    #     # Điền Link
+    #     print('Đang điền link')
+    #     copyStringToClipboard('blockfarm.club')
+    #     DoiThoiGian(2)
+    #     print('Paste và Enter')
+    #     pyautogui.hotkey('ctrl', 'v')
+    #     pyautogui.press('enter')
+    #
+    #     # Nhấn Login
+    #     print('Nhấn Login')
+    #     detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\LoginGame.png', dichX=20, dichY=20)
+    #
+    #     # Đợi 5s
+    #     DoiThoiGian(5)
+    #
+    #     # Vào Farm
+    #     print('Nhấn vào Farm')
+    #     detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\farm.png', dichX=20, dichY=20)
+    #
+    #     # Đợi 5s
+    #     DoiThoiGian(5)
+    #
+    #     # Kiểm tra xem MetaMask hiện hay không
+    #     print('Kiểm tra MetaMask')
+    #
+    #     # Nếu như 0 -> Có hiện
+    #     # Nếu như 1 -> Không hiện
+    #     while detectImage(r'E:\python\Selenium\PhotosGame\CheckMetaMask.png', gioiHan=5) == 0:
+    #         print('Có xuất hiện metamask ! Hãy đăng nhập!')
+    #
+    #     print('Đã tắt metamask ! Tiếp tục')
+    #
+    #     # Nhấn vào map
+    #     print('Nhấn vào maps')
+    #     detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\maps.png', dichX=20, dichY=20)
+    #
+    # # --------------------------------------------------------------------------------------------------
+    #
+    # # 2. Tới phần mở world map
+    # # Lặp trong các item nằm trong cây
+    # print('Tiến hành mở world map')
+    # for i in range(15):
+    #     for link in linkWorldMap:
+    #         while True:
+    #             vaoLinkMoi = False
+    #             count = 0
+    #             for item in TreeItems.descendants():
+    #                 if count == gioiHanMay:
+    #                     print('Xong đợt 1 ! Đợi 30s trước khi tiếp tục')
+    #                     DoiThoiGian(30)
+    #                 else:
+    #                     count = count + 1
+    #                 # Delay để đợi remote window sẵn sàng
+    #                 print('Đợi 3s để đợi remote window sẵn sàng')
+    #                 time.sleep(3)
+    #                 print('Đang chọn máy {check}'.format(check=item.texts()))
+    #                 # Nhấp chuột 1 lần vào item máy tính
+    #                 item.click_input(button='left', coords=(None, None))
+    #
+    #                 # Đợi 5s để remote destop load
+    #                 DoiThoiGian(5)
+    #                 # Vào wold map
+    #                 print('Nhấn chọn world map')
+    #                 detectImageAndClickLeftTopNew('E:\python\Selenium\PhotosGame\worldmap.png', dichX=20, dichY=20)
+    #
+    #                 # Đợi 5s
+    #                 DoiThoiGian(5)
+    #
+    #                 # Bắt đầu vào link với world map
+    #                 print('Vào link world map')
+    #
+    #                 # Đợi 5s
+    #                 DoiThoiGian(5)
+    #
+    #                 # Vào từng link
+    #                 detectImageAndClickLeftTopNew(r'E:\python\Selenium\PhotosGame\NhapLinkMap.png', dichY=20)
+    #                 pyautogui.hotkey('ctrl', 'a')
+    #
+    #                 # Đợi 5s
+    #                 DoiThoiGian(5)
+    #
+    #                 # copy link vào clipboard
+    #                 copyStringToClipboard(link)
+    #
+    #                 # Đợi 5s
+    #                 DoiThoiGian(2)
+    #
+    #                 # paste link và truy cập
+    #                 print('Paste và Enter')
+    #                 pyautogui.hotkey('ctrl', 'v')
+    #                 pyautogui.press('enter')
+    #
+    #                 # Đợi 5s
+    #                 DoiThoiGian(5)
+    #
+    #                 # Tiến hành tưới cây
+    #                 if tuoiCay(soLanTuoiWorldMap, soMay=count - 1, gioiHan=2) == 1:
+    #                     print('Hết cây! Chuyển sang link mới')
+    #                     vaoLinkMoi = True
+    #                     break
+    #             if vaoLinkMoi:
+    #                 break
 
     # 2.
 
 
 if __name__ == "__main__":
     try:
-        # Link vào world map
-        linkWorldMap = ['https://blockfarm.club/farm/mapview/world-map/4559',
-                        'https://blockfarm.club/farm/mapview/world-map/6060']
-
-        # Link vào moon map
-        linkMoonMap = ['https://blockfarm.club/farm/mapview/moon-map/4922',
-                       'https://blockfarm.club/farm/mapview/moon-map/5830',
-                       'https://blockfarm.club/farm/mapview/moon-map/4541']
-
-        # Link vào sun map
-        linkSunMap = ['https://blockfarm.club/farm/mapview/sun-map/4084',
-                      'https://blockfarm.club/farm/mapview/sun-map/3152',
-                      'https://blockfarm.club/farm/mapview/sun-map/5852']
-
         # Mở remote
         remoteWindow = OpenWindow(r'C:\Users\chubo\Desktop\RDCMan.exe', 'Remote')
 
         # Khởi động các máy
         # TODO: Fix lỗi một số máy không khởi động
-        startComputer(remoteWindow, gioiHanMay=2)
+        startComputer(remoteWindow, gioiHanMay=1)
 
         # Tạm dừng 15s để các máy sẵn sàng
         time.sleep(15)
 
         # Quá trình xử lý main process
-        XuLyMainProcess(remoteWindow, gioiHanMay=2, linkMoonMap=linkMoonMap, linkWorldMap=linkWorldMap,
-                        linkSunMap=linkSunMap)
+        XuLyMainProcess(remoteWindow, gioiHanMay=1)
 
     except Exception as err:
         print('Có lỗi xảy ra')
