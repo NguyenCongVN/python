@@ -9,34 +9,23 @@ from pywinauto import Desktop
 from InteractHelper import LayCacTenWindow
 from InteractHelper import waitThreadAndJoin, detectImageAndClickCenter, \
     detectImageAndClickLeftTopNew, DoiThoiGian, detectAllImage, clickWithLocation
+import subprocess
 
 pyautogui.FAILSAFE = False
 cap = 0
 
 
-# Chọn máy với tên
-def chooseComputerWithName(window, tenMay):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        try:
-            if str(tenMay) in str(item.texts()):
-                print('Đang chọn máy {check}'.format(check=tenMay))
-                # Nhấp chuột trái chọn máy
-                item.click_input(button='left', coords=(None, None))
-        except Exception as err:
-            print(err)
-            print('Có lỗi xảy ra {err} trong quá trình chọn máy'.format(err=err))
-
-
 # Mở Remote Destop
-def OpenWindow(path, tuKhoa):
-    Popen(path, shell=True)
+def OpenWindow(tuKhoa, path=None, moCuaSo=False):
+    if moCuaSo:
+        Popen(path, shell=True)
     dlg = None
     # Đợi 5s để cửa sổ mở ra hoàn toàn
     waitThreadAndJoin(5)
 
     #
     tenCacWindow = LayCacTenWindow()
+    print(tenCacWindow)
 
     for tenWindow in tenCacWindow:
         if tuKhoa in tenWindow:
@@ -51,12 +40,13 @@ def OpenWindow(path, tuKhoa):
 
 # Copy một file từ trong máy
 def copyFile(path, fileName):
-    import subprocess
     # mở explorer và chọn path
     subprocess.Popen(r'explorer /select,"{path}"'.format(path=path))
     # Đợi 5s để explorer sẵn sàng
     waitThreadAndJoin(5)
     #
+    tenCacWindow = LayCacTenWindow()
+    print(tenCacWindow)
     dlg = Desktop(backend="uia")['Google Drive']
     # Để cửa sổ lên đầu
     dlg.minimize()
@@ -66,23 +56,6 @@ def copyFile(path, fileName):
     file.click_input()
     # Nhấn Ctrl+C
     file.type_keys('^c')
-
-
-# paste file
-def pasteFile(window, tenMay):
-    TreeItems = window.TreeItem
-    for item in TreeItems.descendants():
-        if str(tenMay) in str(item.texts()):
-            print('pasting computer {check}'.format(check=tenMay))
-            item.click_input(button='left', coords=(None, None))
-            try:
-                staticPanel = window['Input Capture WindowPane']
-                # staticPanel.move_mouse_input(coords=(400, 400))
-                staticPanel.double_click_input(button='left', coords=(1500, 500))
-                staticPanel.type_keys('^v')
-            except:
-                pass
-            break
 
 
 # Mở file
@@ -121,8 +94,32 @@ def openFileCustomised(window, number):
 if __name__ == "__main__":
     try:
         # Mở remote
-        remoteWindow = OpenWindow(r'C:\Users\chubo\Desktop\RDCMan.exe', 'Remote')
+        subprocess.Popen(r'explorer /select,"{path}"'.format(path=r'E:\ToolKDPNew\VPS 79\VPS 79'))
+        exploreWindow = OpenWindow('VPS')
+        exploreWindow.draw_outline()
+        # Chọn cửa sổ explore
+        # exploreWindow.print_control_identifiers()
+        VPS = exploreWindow.child_window(control_type="ListItem")
 
+        # Mở cửa sổ VPS bên trong
+        VPS.draw_outline()
+        VPS.double_click_input()
+
+        # Tìm Item phone bên trong
+        # Mở cửa sổ đầu tiên
+        phoneItem = exploreWindow.child_window(control_type="ListItem", found_index=0)
+
+        phone = phoneItem.title
+        print(phone)
+        phoneItem.draw_outline()
+        phoneItem.double_click_input()
+
+        # paste telegram
+        exploreWindow.draw_outline()
+        # Để cửa sổ lên đầu
+        exploreWindow.minimize()
+        exploreWindow.restore()
+        exploreWindow.type_keys('^v')
 
 
     except Exception as err:
