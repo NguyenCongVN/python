@@ -1,11 +1,14 @@
+import typing
+
 import pyautogui
 import threading
 import time
 import random
 from tkinter import Tk
 from subprocess import Popen, PIPE
-
+from pywinauto import Desktop
 from python_imagesearch.imagesearch import imagesearch, imagesearchMultiple
+from ControlType import ControlType
 
 
 class waitThread(threading.Thread):
@@ -184,3 +187,105 @@ def DongCuaSoRemote():
 def DoiThoiGian(soGiay):
     print('Đợi {x}s để remote destop load'.format(x=soGiay))
     time.sleep(5)
+
+
+def getChildItem(control, title=None, controlType: ControlType = None, found_index=0, depth=None):
+    return control.child_window(control_type=controlType.value, found_index=found_index, title=title, depth=depth)
+
+
+def getControlChildArrayDepth(control, arr: typing.List[int]):
+    control_find = control
+    for i in arr:
+        control_find = control_find.child_window(found_index=i, depth=1)
+        print(i)
+        print_control_identifiers(control_find)
+    return control_find
+
+
+def drawOutlineControl(control, color='green'):
+    control.draw_outline(color)
+
+
+def double_click_input(control):
+    control.double_click_input()
+
+
+def minimize(control):
+    control.minimize()
+
+
+def restoreControl(control):
+    control.restore()
+
+
+def bringToFrontControl(control, tuKhoa=None):
+    minimize(control)
+    if tuKhoa:
+        control = OpenWindow(tuKhoa=tuKhoa)
+        restoreControl(control)
+    else:
+        restoreControl(control)
+
+
+def typeKeyWithControl(control, key):
+    control.type_keys(f'^{key}')
+
+
+def typeKeyEnter(control):
+    control.type_keys('{ENTER}')
+
+
+def typeKey(control, key):
+    control.type_keys(f'{key}')
+
+
+def getTextOfListItem(control):
+    return control.window_text()
+
+
+def getTextEditControl(control):
+    return control.texts()
+
+
+def print_control_identifiers(control):
+    control.print_control_identifiers()
+
+
+def getTextChildItems(control):
+    return control.texts()
+
+
+def click_input(control):
+    control.click_input()
+
+
+def close_control(control):
+    control.close()
+
+
+def setEditText(EditControl, text):
+    EditControl.set_text('')
+    EditControl.set_text(text)
+
+
+# Mở Remote Destop
+def OpenWindow(tuKhoa, path=None, moCuaSo=False):
+    if moCuaSo:
+        Popen(path, shell=True)
+    dlg = None
+    # Đợi 5s để cửa sổ mở ra hoàn toàn
+    waitThreadAndJoin(5)
+
+    #
+    tenCacWindow = LayCacTenWindow()
+    print(tenCacWindow)
+
+    for tenWindow in tenCacWindow:
+        if tuKhoa in tenWindow:
+            print('Thấy cửa sổ khớp {tenWindow}'.format(tenWindow=tenWindow))
+            dlg = Desktop(backend="uia")[tenWindow]
+            break
+    dlg.wait('visible')
+
+    # Trả về cửa sổ sau khi đã mở thành công
+    return dlg
