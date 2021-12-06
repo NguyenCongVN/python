@@ -9,6 +9,10 @@ from subprocess import Popen, PIPE
 from pywinauto import Desktop
 from python_imagesearch.imagesearch import imagesearch, imagesearchMultiple
 from ControlType import ControlType
+import ctypes
+from ctypes import *
+from ctypes import wintypes, windll
+import os
 
 
 class waitThread(threading.Thread):
@@ -193,15 +197,6 @@ def getChildItem(control, title=None, controlType: ControlType = None, found_ind
     return control.child_window(control_type=controlType.value, found_index=found_index, title=title, depth=depth)
 
 
-def getControlChildArrayDepth(control, arr: typing.List[int]):
-    control_find = control
-    for i in arr:
-        control_find = control_find.child_window(found_index=i, depth=1)
-        print(i)
-        print_control_identifiers(control_find)
-    return control_find
-
-
 def drawOutlineControl(control, color='green'):
     control.draw_outline(color)
 
@@ -289,3 +284,57 @@ def OpenWindow(tuKhoa, path=None, moCuaSo=False):
 
     # Trả về cửa sổ sau khi đã mở thành công
     return dlg
+
+
+def GetApplicationFolderPath():
+    import os
+    return os.getenv('APPDATA')
+
+
+def GetProgramPath():
+    import os
+    return os.environ["ProgramFiles(x86)"]
+
+
+def ChangeProxyWithProxifier(proxy: str, is_auth=True):
+    print('Thêm process telegram')
+    newValue3 = " <Action type=\"Direct\" />"
+    with open('default.ppx', 'r') as defaultFile:
+        with open('active.ppx', 'w') as activeFile:
+            textAddTelegram = defaultFile.read().replace('{my_setting1}', 'true').replace('{my_setting2}',
+                                                                                          'Telegram.exe;').replace(
+                '{my_setting3}', newValue3)
+            activeFile.write(textAddTelegram)
+            activeFile.close()
+            defaultFile.close()
+
+    ip, port, username, password = proxy.split(':')
+    print('Tiến hành đổi proxy')
+    print('Tắt proxifier')
+    try:
+        os.system("taskkill /f /im Proxifier.exe")
+    except:
+        pass
+    with open('active.ppx', 'r') as activeFile:
+        activeText = activeFile.read()
+    with open('run.ppx', 'w') as proxifierFile:
+        if is_auth:
+            runText = activeText.replace('{my_proxy}', ip).replace('{my_port}', port).replace('{is_auth}',
+                                                                                              'true').replace(
+                '{user_name}', username)
+        else:
+            runText = activeText.replace('{my_proxy}', ip).replace('{my_port}', port).replace('{is_auth}',
+                                                                                              'false').replace(
+                '{user_name}', username)
+        proxifierFile.write(runText)
+        activeFile.close()
+        proxifierFile.close()
+    print('Xóa file config cũ')
+    try:
+        os.remove(rf'{GetApplicationFolderPath()}\Proxifier\Profiles\run.ppx')
+    except Exception as err:
+        print(err)
+        pass
+    print('Chạy config')
+    import subprocess
+    subprocess.Popen([rf"{GetProgramPath()}\Proxifier\Proxifier.exe", fr'{os.getcwd()}\run.ppx'])
