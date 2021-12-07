@@ -331,13 +331,14 @@ def main():
         print('Số tài khoản Twitter:', len(dataTwitter))
         print('Số Wallet:', len(dataWallet))
         print('Số discord:', len(dataDiscord))
+        print('Số proxy:', len(dataProxy))
 
-        soLanDungIP = 2
+        soLanDungIP = 4
 
         # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
         number_acc = len(dataTwitter)
-        if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or len(
-                dataProxy) * soLanDungIP < number_acc or len(
+        if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or (
+                len(dataProxy) * soLanDungIP) < number_acc or len(
             dataDiscord) != number_acc or soThuMucTelegram < number_acc:
             print(
                 'Số thông tin twitter,wallet, discord không bằng nhau hoặc số thư mục telegram ít hơn số account đang có hoặc số proxy không đủ để dùng')
@@ -399,11 +400,11 @@ def main():
                     # -------------------------------------------
                     # copy telegram.exe
                     print('Copy telegram')
-                    CopyTelegram()
+                    CopyTelegram(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
 
                     # Mở telegram ứng với index
                     print('Mở telegram với index')
-                    telegramApp = MoTelegramIndex(telepath=dataTelePath[index][0:-1])
+                    telegramApp = MoTelegramIndex(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
 
                     # Nhấn Hide
                     print('Nhấn HIDE')
@@ -423,7 +424,6 @@ def main():
                                          proxy=dataProxy[index_proxy][0:-1],
                                          anti_captcha=None,
                                          chrome_folder_path=configData.chrome_folder_path)
-                    driver.set_page_load_timeout(10)
                     WAIT_TIMEOUT = 12
                     print(f'Tạo wait với thời gian chờ {WAIT_TIMEOUT}')
                     wait = WebDriverWait(driver=driver, timeout=WAIT_TIMEOUT)
@@ -437,7 +437,7 @@ def main():
                     driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800')
 
                     # Nhấn chọn open in telegram
-                    clickUntilDisapper(imagePath='Image\\OpenInTelegramDestop.png')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
 
                     # Thoát chrome
                     quitAllDriver(driver=driver)

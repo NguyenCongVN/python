@@ -496,6 +496,12 @@ def open_driver(chromePath: str, chrome_folder_path: str, driverPath: str, try_t
             traceback.print_exc()
             count = count + 1
             print('Lỗi mở driver! Thử lại')
+            # Đóng hết telegram
+            try:
+                print('Đóng hết chrome')
+                os.system("taskkill /f /im chrome.exe")
+            except:
+                pass
             if count == try_time:
                 return 1
 

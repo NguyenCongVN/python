@@ -5,18 +5,10 @@ from InteractHelper import *
 from Interface.Error import TelegramError
 
 
-def CopyTelegram():
+def CopyTelegram(telepath):
     CurrentDirectory = os.getcwd()
-    subprocess.Popen(
-        r'explorer /select,"{path}"'.format(
-            path=rf'{CurrentDirectory}\Telegram.exe'))
-    lastPath = CurrentDirectory.split('\\')[len(CurrentDirectory.split('\\')) - 1]
-    print(lastPath)
-    exploreWindow = OpenWindow(f'{lastPath}')
-    bringToFrontControl(control=exploreWindow)
-    drawOutlineControl(control=exploreWindow)
-    typeKeyWithControl(control=exploreWindow, key='c')
-    close_control(control=exploreWindow)
+    from shutil import copyfile
+    copyfile(rf'{CurrentDirectory}\Telegram.exe', telepath)
 
 
 def MoTelegramIndex(telepath: str):
@@ -26,55 +18,13 @@ def MoTelegramIndex(telepath: str):
         try:
             if time_try == 3:
                 raise Exception(TelegramError.time_num_out)
-            CurrentDirectory = os.getcwd()
-            # Mở cửa sổ chứa telegram
-            print('Mở cửa số chứa telegram')
-            subprocess.Popen(
-                r'explorer /select,"{path}"'.format(path=fr'{telepath}\tdata'))
-            exploreWindow = OpenWindow(telepath.split('\\')[-1])
-            controlDangMo.append(exploreWindow)
-            # drawOutlineControl(exploreWindow)
-            # print('Đưa cửa sổ lên đầu')
-            # bringToFrontControl(control=exploreWindow, tuKhoa='Tele')
-
-            # # Nhấn chọn thư mục đầu tiên
-            # print('Nhấn chọn thư mục đầu tiên')
-            # double_click_input(control=getChildItem(exploreWindow, controlType=ControlType.ListItem, found_index=0))
-
-            # Tìm Item phone bên trong
-            # Mở thư mục tương ứng với các acc
-            # print('Mở thư mục đối với từng index')
-            # phoneItem = getChildItem(exploreWindow, controlType=ControlType.ListItem, found_index=index)
-            # phone = getTextOfListItem(control=phoneItem)
-            # print(f'Mở thư mục {phone}')
-            # drawOutlineControl(control=phoneItem)
-            # double_click_input(control=phoneItem)
-            # controlDangMo.remove(exploreWindow)
-
-            # paste telegram
-            print('Tìm explore với thư mục phone hiện tại')
-            # exploreWindow = OpenWindow(tuKhoa=str(phone))
-            # controlDangMo.append(exploreWindow)
-            # drawOutlineControl(control=exploreWindow)
-            # Để cửa sổ lên đầu
-            bringToFrontControl(control=exploreWindow)
-            typeKeyWithControl(control=exploreWindow, key='v')
-            print('Đợi 5s để tiến hanh paste xong')
-            time.sleep(5)
-
-            bringToFrontControl(control=exploreWindow, tuKhoa=telepath.split('\\')[-1])
-
             # Mở app telegram
             print('Mở telegram app')
-            telegramAppListItem = getChildItem(control=exploreWindow, controlType=ControlType.ListItem,
-                                               title='Telegram.exe')
-            double_click_input(control=telegramAppListItem)
+            subprocess.Popen(telepath)
             telegramApp = OpenWindow('Telegram')
             controlDangMo.append(telegramApp)
             bringToFrontControl(control=telegramApp, tuKhoa='Tele')
-
             # Đóng cửa sổ explore
-            close_control(control=exploreWindow)
             return telegramApp
         except Exception as err:
             traceback.print_exc()
