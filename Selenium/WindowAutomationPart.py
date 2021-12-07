@@ -269,6 +269,13 @@ def xoaThongTinDiscord(DiscordDataPath: str, discord_delete_ID: str) -> Union[in
         return -1
 
 
+def TimIndexTeleChay():
+    with open('index.txt') as indexFile:
+        index = indexFile.read()
+        indexFile.close()
+        return int(index)
+
+
 def main():
     try:
         # Khởi tạo --------------------------------------------
@@ -342,7 +349,7 @@ def main():
                 print('Tiếp tục chạy')
 
         # --------------------------------------------
-        index = 38 # 58,59 --  Lỗi sesion,60,61 you are not subcribe
+        index = TimIndexTeleChay()  # 58,59 --  Lỗi sesion,60,61 you are not subcribe
         index_proxy = 0
         index_SoLanChay = 0
         for twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
