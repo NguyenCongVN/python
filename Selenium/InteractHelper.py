@@ -8,7 +8,7 @@ import random
 from tkinter import Tk
 from subprocess import Popen, PIPE
 from pywinauto import Desktop
-from python_imagesearch.imagesearch import imagesearch, imagesearchMultiple
+from python_imagesearch.imagesearch import imagesearch #, imagesearchMultiple
 from ControlType import ControlType
 import os
 import undetected_chromedriver.v2 as uc
@@ -108,21 +108,21 @@ def detectImageAndClickLeftTopNewSingle(imagePath, dichX=0, dichY=0, gioiHan=5):
                 count = count + 1
 
 
-def detectAllImage(imagePath, gioiHan=None):
-    count = 0
-    while True:
-        locations = imagesearchMultiple(imagePath)
-        if len(locations) is not 0:
-            for location in locations:
-                print("Tìm thấy ở vị trí : ", location[0], location[1])
-            return locations
-        else:
-            print("Không tìm thấy ảnh ! Thử lại sau 2s")
-            time.sleep(2)
-            if gioiHan is not None:
-                if count == gioiHan:
-                    return 1
-                count = count + 1
+# def detectAllImage(imagePath, gioiHan=None):
+#     count = 0
+#     while True:
+#         locations = imagesearchMultiple(imagePath)
+#         if len(locations) is not 0:
+#             for location in locations:
+#                 print("Tìm thấy ở vị trí : ", location[0], location[1])
+#             return locations
+#         else:
+#             print("Không tìm thấy ảnh ! Thử lại sau 2s")
+#             time.sleep(2)
+#             if gioiHan is not None:
+#                 if count == gioiHan:
+#                     return 1
+#                 count = count + 1
 
 
 def clickWithLocation(location, dichX=0, dichY=0):
@@ -456,10 +456,10 @@ def open_driver(chromePath: str, chrome_folder_path: str, driverPath: str, try_t
                 if lenProxy == 4:
                     if type_proxy == 0:
                         options.add_argument(f"--proxy-server= {proxy.split(':')[0]}:{proxy.split(':')[1]}")
-                        options.add_argument('--load-extension=E:\\ToolKDPNew\\Selenium\\extension\\proxy1')
+                        options.add_argument(f'--load-extension={os.getcwd()}\\extension\\proxy1')
                     else:
                         options.add_argument(f"--proxy-server= socks5://{proxy.split(':')[0]}:{proxy.split(':')[1]}")
-                        options.add_argument('--load-extension=E:\\ToolKDPNew\\Selenium\\extension\\proxy1')
+                        options.add_argument(f'--load-extension={os.getcwd()}\\extension\\proxy1')
 
             # from fake_useragent import UserAgent
             # from selenium_stealth import stealth

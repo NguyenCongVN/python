@@ -9,10 +9,13 @@ def getAllSubDir(path):
 def XoaFilePath(path):
     os.remove(path)
 
+#
+# for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+#     filePath = fr'{folder}\Telegram.exe'
+#     try:
+#         XoaFilePath(filePath)
+#     except:
+#         pass
 
-for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
-    filePath = fr'{folder}\Telegram.exe'
-    try:
-        XoaFilePath(filePath)
-    except:
-        pass
+# with open('TelePath1.txt' , 'w') as file:
+#     for

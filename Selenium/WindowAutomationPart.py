@@ -332,7 +332,7 @@ def main():
         print('Số Wallet:', len(dataWallet))
         print('Số discord:', len(dataDiscord))
 
-        soLanDungIP = 5
+        soLanDungIP = 2
 
         # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
         number_acc = len(dataTwitter)
@@ -441,6 +441,7 @@ def main():
 
                     # Thoát chrome
                     quitAllDriver(driver=driver)
+                    time.sleep(5)
 
                     # Vào bot
                     print('Quay về bot')
@@ -477,7 +478,7 @@ def main():
 
                     # Điền link vào channel
                     print('Vào channel')
-                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='https://t.me/chumbivalleychannel')
+                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Chumbi Valley - Announcements')
 
                     # nhấn join
                     print('Nhấn Join')
