@@ -1,3 +1,4 @@
+import traceback
 import typing
 
 import pyautogui
@@ -9,10 +10,10 @@ from subprocess import Popen, PIPE
 from pywinauto import Desktop
 from python_imagesearch.imagesearch import imagesearch, imagesearchMultiple
 from ControlType import ControlType
-import ctypes
-from ctypes import *
-from ctypes import wintypes, windll
 import os
+import undetected_chromedriver.v2 as uc
+import requests
+from requests.auth import HTTPProxyAuth
 
 
 class waitThread(threading.Thread):
@@ -32,8 +33,9 @@ def waitThreadAndJoin(time):
 
 
 def captureScreen(number):
+    currentDir = os.getcwd()
     im1 = pyautogui.screenshot()
-    im1.save(r"C:\Users\Admin\Pictures\testingImage-{j}.jpg".format(j=number))
+    im1.save(rf"{currentDir}\result\result-{number}.jpg")
     waitThreadAndJoin(1)
 
 
@@ -89,7 +91,7 @@ def detectImageAndClickLeftTopNew(imagePath, dichX=0, dichY=0, gioiHan=None):
                 count = count + 1
 
 
-def detectImageAndClickLeftTopNewSingle(imagePath, dichX=0, dichY=0, gioiHan=None):
+def detectImageAndClickLeftTopNewSingle(imagePath, dichX=0, dichY=0, gioiHan=5):
     count = 0
     while True:
         pos = imagesearch(imagePath)
@@ -230,7 +232,8 @@ def typeKeyEnter(control):
     control.type_keys('{ENTER}')
 
 
-def typeKey(control, key):
+def typeKey(control, key: str):
+    key = key.replace(' ', '{VK_SPACE}')
     control.type_keys(f'{key}')
 
 
@@ -338,3 +341,227 @@ def ChangeProxyWithProxifier(proxy: str, is_auth=True):
     print('Chạy config')
     import subprocess
     subprocess.Popen([rf"{GetProgramPath()}\Proxifier\Proxifier.exe", fr'{os.getcwd()}\run.ppx'])
+
+
+def deleteContentFolder(folderPath):
+    import os, shutil
+    folder = folderPath
+    for filename in os.listdir(folder):
+        file_path = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(file_path) or os.path.islink(file_path):
+                os.unlink(file_path)
+            elif os.path.isdir(file_path):
+                shutil.rmtree(file_path)
+        except Exception as e:
+            print('Failed to delete %s. Reason: %s' % (file_path, e))
+
+
+def open_driver(chromePath: str, chrome_folder_path: str, driverPath: str, try_time=5, proxy: str = None,
+                type_proxy: int = None,
+                anti_captcha=None):
+    count = 0
+    while count < try_time:
+        try:
+            options = uc.ChromeOptions()
+            options.binary_location = chromePath
+            # you may need some other options
+            # options.add_argument("start-maximized")
+            # options.add_experimental_option("excludeSwitches", ["enable-automation"])
+            # options.add_experimental_option('useAutomationExtension', False)
+            options.add_argument("--remote-debugging-port=9222")
+            # options.add_argument('--no-sandbox')
+            options.add_argument('--no-default-browser-check')
+            options.add_argument('--no-first-run')
+            options.add_argument('--disable-default-apps')
+            option_str = [
+                #               "--disable-3d-apis",
+                #               "--disable-background-networking",
+                #               "--disable-bundled-ppapi-flash",
+                #               "--disable-client-side-phishing-detection",
+                #               "--disable-default-apps",
+                #               "--disable-hang-monitor",
+                #               "--disable-prompt-on-repost",
+                #               # "--disable-sync",
+                #               # "--disable-webgl", error khi dùng vps
+                #               # "--enable-blink-features=ShadowDOMV0",
+                #               # "--enable-logging",
+                #               "--disable-notifications",
+                #               # "--no-sandbox",
+                #               # error connect ??
+                #               # "--disable-gpu",
+                #               # "--disable-dev-shm-usage",
+                #               "--disable-web-security",
+                #               "--disable-rtc-smoothness-algorithm",
+                #               "--disable-webrtc-hw-decoding",
+                #               "--disable-webrtc-hw-encoding",
+                #               "--disable-webrtc-multiple-routes",
+                #               "--disable-webrtc-hw-vp8-encoding",
+                #               # error connect chrome
+                #               # "--enforce-webrtc-ip-permission-check",
+                #               # "--force-webrtc-ip-handling-policy",
+                #               # "--ignore-certificate-errors",
+                #               # "--disable-infobars",
+                #               # "--disable-blink-features=\"BlockCredentialedSubresources\"",
+                "--disable-popup-blocking",
+                #               "--disable-blink-features=AutomationControlled",
+                #               "--credentials_enable_service=False"
+            ]
+            for option in option_str:
+                options.add_argument(option)
+
+            # # Thêm anti capcha
+            # if anti_captcha:
+            #     print('Thêm anti captcha')
+            #
+            #     # Xóa plugin
+            #     # print('Xóa plugin')
+            #     # deleteContentFolderAndFolder('plugin')
+            #     # print('Xóa chrome plugin')
+            #     # deleteContentFolderAndFolder(f'{chrome_folder_path}\\App\\Chrome-bin\\88.0.4324.104\\plugin')
+            #
+            #     with zipfile.ZipFile('.\\extension\\anticaptcha-plugin_v0.60.zip', "r") as f:
+            #         f.extractall("plugin")
+            #
+            #     # Config api key
+            #     from pathlib import Path
+            #
+            #     # set API key in configuration file
+            #     api_key = anti_captcha
+            #     file = Path('.\\plugin\\js\\config_ac_api_key.js')
+            #     file.write_text(file.read_text().replace("antiCapthaPredefinedApiKey = ''",
+            #                                              "antiCapthaPredefinedApiKey = '{}'".format(api_key)))
+            #
+            #     # zip plugin directory back to plugin.zip
+            #     zip_file = zipfile.ZipFile('.\\plugin.zip', 'w', zipfile.ZIP_DEFLATED)
+            #     for root, dirs, files in os.walk(".\\plugin"):
+            #         for file in files:
+            #             path = os.path.join(root, file)
+            #             zip_file.write(path, arcname=path.replace(".\\plugin\\", ""))
+            #     zip_file.close()
+            #
+            #     # options.add_extension('.\\plugin.zip')
+            #
+            #     # Copy folder to Chrome
+            #     from distutils.dir_util import copy_tree
+            #     copy_tree(".\\plugin", f"{chrome_folder_path}\\App\\Chrome-bin\\88.0.4324.104\\plugin")
+            #     options.add_argument('--load-extension=.\\plugin')
+            if proxy:
+                lenProxy = len(proxy.split(':'))
+                if lenProxy == 2:
+                    if type_proxy == 0:
+                        options.add_argument(f'--proxy-server= {proxy}')
+                    else:
+                        options.add_argument(f'--proxy-server= socks5://{proxy}')
+                if lenProxy == 4:
+                    if type_proxy == 0:
+                        options.add_argument(f"--proxy-server= {proxy.split(':')[0]}:{proxy.split(':')[1]}")
+                        options.add_argument('--load-extension=E:\\ToolKDPNew\\Selenium\\extension\\proxy1')
+                    else:
+                        options.add_argument(f"--proxy-server= socks5://{proxy.split(':')[0]}:{proxy.split(':')[1]}")
+                        options.add_argument('--load-extension=E:\\ToolKDPNew\\Selenium\\extension\\proxy1')
+
+            # from fake_useragent import UserAgent
+            # from selenium_stealth import stealth
+            # driver = webdriver.Chrome(executable_path=driverPath, options=options)
+            # ua = UserAgent()
+            # stealth(driver, user_agent=ua.random,
+            #         languages=["en-US", "en"],
+            #         vendor="Google Inc.",
+            #         platform="Win32",
+            #         webgl_vendor="Intel Inc.",
+            #         renderer="Intel Iris OpenGL Engine",
+            #         fix_hairline=True,
+            #         )
+            print('Trước khi tạo')
+            driver = uc.Chrome(options=options, executable_path=driverPath, log_level=1)
+            # driver = uc.Chrome(options=options, version_main=96)
+            print('Sau khi tạo')
+            driver.maximize_window()
+            # driver = uc.Chrome(options=options)
+
+            # Kiểm tra ip của chrome
+            driver.execute_script(f"document.title=\"proxyauth={proxy}\"")
+            driver.get('https://api.myip.com/')
+            time.sleep(1)
+            pageSource = driver.page_source
+            print(pageSource)
+            if "ip" not in pageSource:
+                print('Lỗi IP! Thử lại')
+                continue
+            print('Thành Công')
+            return driver
+        except Exception as err:
+            print(err)
+            traceback.print_exc()
+            count = count + 1
+            print('Lỗi mở driver! Thử lại')
+            if count == try_time:
+                return 1
+
+
+def quitAllDriver(driver):
+    for handle in driver.window_handles:
+        driver.switch_to.window(handle)
+        driver.close()
+    driver.quit()
+
+
+def CheckProxy(proxy: str, typeProxy: int, auth=True):
+    try:
+        text = ""
+        proxy_props = proxy.split(':')
+        proxyDict = {
+            "http": proxy,
+            "https": proxy,
+        }
+        if typeProxy == 0 and proxy != "":
+            baseUrl = 'https://api64.ipify.org'
+            if auth:
+                if len(proxy_props) > 2:
+                    proxies = {'https': f'http://{proxy_props[2]}:{proxy_props[3]}@{proxy_props[0]}:{proxy_props[1]}',
+                               'http': f'https://{proxy_props[2]}:{proxy_props[3]}@{proxy_props[0]}:{proxy_props[1]}'}
+                    auth = HTTPProxyAuth(proxy_props[2], proxy_props[3])
+                    r = requests.get(baseUrl, proxies=proxies, timeout=5, auth=auth)
+                else:
+                    return ""
+            else:
+                r = requests.get(baseUrl, proxies=proxyDict, timeout=5)
+            text = r.text
+            print(text)
+            if len(text.split('.')) != 4 and len(text.split('.')) != 8:
+                text = ""
+    except Exception as err:
+        print(err)
+        text = ""
+    return text
+
+
+def CheckConnectionToProxy(proxy: str, num_check: int):
+    proxy_running = False
+    for i in range(num_check):
+        print('Đang kiểm tra proxy')
+        if CheckProxy(proxy, 0) != "":
+            print('Proxy hoạt động')
+            proxy_running = True
+            break
+        else:
+            print('Proxy không hoạt động')
+            time.sleep(5)
+    if proxy_running:
+        return proxy
+    else:
+        return False
+
+
+def clickUntilDisapper(imagePath, gioiHan=2):
+    count = 0
+    while count < gioiHan:
+        detectImageAndClickLeftTopNewSingle(imagePath=imagePath, gioiHan=2)
+        count = count + 1
+        time.sleep(5)
+    print('Dừng nhấn')
+
+def getAllSubDir(path):
+    subfolders = [f.path for f in os.scandir(path) if f.is_dir()]
+    return subfolders

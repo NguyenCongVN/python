@@ -17,11 +17,11 @@
   </Options>
   <ProxyList>
     <Proxy id="100" type="HTTPS">
-      <Address>209.127.115.9</Address>
-      <Port>6105</Port>
+      <Address>{my_proxy}</Address>
+      <Port>{my_port}</Port>
       <Options>48</Options>
-      <Authentication enabled="true">
-        <Username>rgxaxuix</Username>
+      <Authentication enabled="{is_auth}">
+        <Username>{user_name}</Username>
         <Password>AAACX2B3RoI79zBdornHHBRu2EVlJC3b5jA3PoqlhqvrT9c=</Password>
       </Authentication>
     </Proxy>

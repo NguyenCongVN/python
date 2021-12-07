@@ -5,3 +5,8 @@ venv
 .idea
 result
 build
+Selenium/Tele
+Selenium/TeleOld
+*.exe
+Selenium/VPS 79
+*.rar
