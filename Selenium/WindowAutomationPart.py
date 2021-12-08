@@ -528,6 +528,7 @@ def main():
                         with open('result.txt', 'a') as file:
                             file.writelines(f'{twitterAcc.username}:1\n')
                         captureScreen(number=f'success_{index}')
+                        XoaFolder(rf'{dataTelePath[index][0:-1]}')
                     else:
                         print('Không thành công')
                         captureScreen(number=f'failed_{index}')
