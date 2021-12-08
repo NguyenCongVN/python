@@ -562,11 +562,14 @@ def CheckConnectionToProxy(proxy: str, num_check: int):
 
 def clickUntilDisapper(imagePath, gioiHan=2):
     count = 0
+    is_clicked = False
     while count < gioiHan:
-        detectImageAndClickLeftTopNewSingle(imagePath=imagePath, gioiHan=2)
+        if detectImageAndClickLeftTopNewSingle(imagePath=imagePath, gioiHan=2) == 0:
+            is_clicked = True
         count = count + 1
         time.sleep(5)
     print('Dừng nhấn')
+    return is_clicked
 
 def getAllSubDir(path):
     subfolders = [f.path for f in os.scandir(path) if f.is_dir()]

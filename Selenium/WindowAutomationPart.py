@@ -351,6 +351,12 @@ def main():
 
         # --------------------------------------------
         index = TimIndexTeleChay()  # 58,59 --  Lỗi sesion,60,61 you are not subcribe
+        # Xóa các folder không chạy tới
+        print('Xóa folder không dùng')
+        for i, folderPath in enumerate(dataTelePath):
+            if i not in range(index - 1, index + number_acc - 1):
+                XoaFolder(folderPath[0:-1])
+
         index_proxy = 0
         index_SoLanChay = 0
         for twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
@@ -453,7 +459,7 @@ def main():
 
                     # Nhấn start
                     print('Nhấn start')
-                    clickUntilDisapper(imagePath='Image\\StartButton.png')
+                    clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=5)
 
                     # Vào Group và join
                     print('Tìm vào group')

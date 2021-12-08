@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import traceback
 from InteractHelper import *
@@ -114,3 +115,7 @@ def XoaHetTeleExe():
             XoaFilePath(filePath)
         except:
             pass
+
+
+def XoaFolder(path):
+    shutil.rmtree(path, ignore_errors=True)
