@@ -361,10 +361,11 @@ def main():
         index_SoLanChay = 0
         for twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
             time_try = 0
+            index_SoLanChay = index_SoLanChay + 1
             while True:
                 try:
                     time_try = time_try + 1
-                    if time_try == 3:
+                    if time_try == 2:
                         print('Quá số lần chạy process')
                         raise Exception(ProcessError.time_try_error)
 
@@ -377,7 +378,6 @@ def main():
                     time.sleep(2)
                     print('Xóa hết file telegram')
                     XoaHetTeleExe()
-                    index_SoLanChay = index_SoLanChay + 1
                     if index_SoLanChay > soLanDungIP:
                         # Đổi proxy với proxifier
                         print('Đổi sang proxy mới')
@@ -528,11 +528,10 @@ def main():
                         with open('result.txt', 'a') as file:
                             file.writelines(f'{twitterAcc.username}:1\n')
                         captureScreen(number=f'success_{index}')
-                        XoaFolder(rf'{dataTelePath[index][0:-1]}')
+
                     else:
                         print('Không thành công')
                         captureScreen(number=f'failed_{index}')
-
                     # Nhấn chọn bot
                     print('Xóa các thông tin')
 
@@ -543,6 +542,17 @@ def main():
 
                     xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
                                        discord_delete_ID=discordAcc.username)
+
+                    # Đóng hết telegram
+                    try:
+                        print('Đóng hết Telegram')
+                        os.system("taskkill /f /im Telegram.exe")
+                    except:
+                        pass
+                    time.sleep(2)
+
+                    print('Xóa folder telegram')
+                    XoaFolder(rf'{dataTelePath[index][0:-1]}')
 
                     index = index + 1
                     time.sleep(5)
@@ -566,9 +576,22 @@ def main():
                                       wallet_delete=wallet_address)
                         xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
                                            discord_delete_ID=discordAcc.username)
+
+                        # Đóng hết telegram
+                        try:
+                            print('Đóng hết Telegram')
+                            os.system("taskkill /f /im Telegram.exe")
+                        except:
+                            pass
+                        time.sleep(2)
+
+                        print('Xóa folder telegram')
+                        XoaFolder(rf'{dataTelePath[index][0:-1]}')
+
                         # XoaDataTelegram(TelegramPath=configData.telegram_data_path, telegram_delete=telegramUserName)
                         print('Chuyển sang acc khác')
                         index = index + 1
+                        break
                         # try:
                         #     quitAllDriver(driver=driver)
                         # except:
