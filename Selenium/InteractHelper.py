@@ -1,6 +1,8 @@
 import traceback
 import typing
 
+import cv2
+import numpy as np
 import pyautogui
 import threading
 import time
@@ -38,6 +40,18 @@ def captureScreen(number):
     im1 = pyautogui.screenshot()
     im1.save(rf"{currentDir}\result\result-{number}.jpg")
     waitThreadAndJoin(1)
+
+
+def captureScreenAndCrop(x, y, hieght, width):
+    print(x, y, width, hieght)
+    image = pyautogui.screenshot()
+    image.save(rf"{os.getcwd()}\test.jpg")
+    image = cv2.imread(rf"{os.getcwd()}\test.jpg")
+    crop_img = image[y: y + hieght, x: x + width, ]
+    cv2.imwrite(rf"{os.getcwd()}\test.jpg", crop_img)
+    cv2.waitKey(0)
+    waitThreadAndJoin(1)
+    return rf"{os.getcwd()}\test.jpg"
 
 
 def detectImageAndClickCenterSingle(imagePath):
@@ -137,13 +151,13 @@ def detectImage(imagePath, gioiHan=None):
         pos = imagesearch(imagePath)
         if pos[0] != -1:
             print("Tìm thấy ở vị trí : ", pos[0], pos[1])
-            return 0
+            return pos[0], pos[1]
         else:
             print("Không tìm thấy ảnh ! Thử lại sau 2s")
             time.sleep(2)
             if gioiHan is not None:
                 if count == gioiHan:
-                    return 1
+                    return -1
                 count = count + 1
 
 
