@@ -17,8 +17,8 @@
   </Options>
   <ProxyList>
     <Proxy id="100" type="HTTPS">
-      <Address>209.127.115.9</Address>
-      <Port>6105</Port>
+      <Address>154.12.96.23</Address>
+      <Port>6120</Port>
       <Options>48</Options>
       <Authentication enabled="true">
         <Username>rgxaxuix</Username>

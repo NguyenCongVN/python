@@ -42,16 +42,20 @@ def captureScreen(number):
     waitThreadAndJoin(1)
 
 
-def captureScreenAndCrop(x, y, hieght, width):
+def CropImage(x, y, hieght, width):
     print(x, y, width, hieght)
-    image = pyautogui.screenshot()
-    image.save(rf"{os.getcwd()}\test.jpg")
     image = cv2.imread(rf"{os.getcwd()}\test.jpg")
     crop_img = image[y: y + hieght, x: x + width, ]
-    cv2.imwrite(rf"{os.getcwd()}\test.jpg", crop_img)
+    cv2.imwrite(rf"{os.getcwd()}\test_crop.jpg", crop_img)
     cv2.waitKey(0)
     waitThreadAndJoin(1)
-    return rf"{os.getcwd()}\test.jpg"
+    return rf"{os.getcwd()}\test_crop.jpg"
+
+
+def captureScreenChallenge():
+    image = pyautogui.screenshot()
+    image.save(rf"{os.getcwd()}\test.jpg")
+    waitThreadAndJoin(1)
 
 
 def detectImageAndClickCenterSingle(imagePath):

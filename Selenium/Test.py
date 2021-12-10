@@ -18,6 +18,6 @@ def XoaFilePath(path):
 #         pass
 
 with open('TelePath.txt' , 'w') as file:
-    for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+    for folder in getAllSubDir(fr'{os.getcwd()}\VPS 79\VPS 79'):
         file.write(f'{folder}\n')
     file.close()

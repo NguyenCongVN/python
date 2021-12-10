@@ -77,10 +77,10 @@ def QuayVeBot(telegramApp):
         searchEdit = TimSearchEdit(telegramApp=telegramApp)
         searchEdit.set_text('')
     try:
-        typeKey(control=searchEdit, key='CHUMBI VALLEY AIRDROP')
+        typeKey(control=searchEdit, key='Chumbi Valley Airdrop (New Round)')
     except:
         searchEdit = TimSearchEdit(telegramApp=telegramApp)
-        typeKey(control=searchEdit, key='CHUMBI VALLEY AIRDROP')
+        typeKey(control=searchEdit, key='Chumbi Valley Airdrop (New Round)')
     time.sleep(7)
     try:
         typeKeyEnter(control=searchEdit)

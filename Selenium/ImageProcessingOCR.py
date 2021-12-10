@@ -24,7 +24,7 @@ def getTextValueFromImage(path):
     # of the rectangle to be detected.
     # A smaller value like (10, 10) will detect
     # each word instead of a sentence.
-    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (10, 10))
+    rect_kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (8, 8))
 
     # Appplying dilation on the threshold image
     dilation = cv2.dilate(thresh1, rect_kernel, iterations=1)
@@ -58,13 +58,16 @@ def getTextValueFromImage(path):
 
 
 def solveChallengeTelegram(signitureImagePath):
-    init_width = 300
+    init_width = 400
     init_height = 20
     result = detectImage(imagePath=signitureImagePath, gioiHan=20)
+    time_try = 0
     if result != -1:
+        captureScreenChallenge()
         while True:
-            path = captureScreenAndCrop(x=result[0], y=result[1] + 20, width=init_width, hieght=init_height)
+            path = CropImage(x=result[0], y=result[1] + 20, width=init_width, hieght=init_height)
             text = getTextValueFromImage(path)
+            print(text)
             if '=' in text:
                 tokens = text.split(' ')
                 math_tokens = []
@@ -78,20 +81,46 @@ def solveChallengeTelegram(signitureImagePath):
                     except ValueError:
                         pass
                 if len(math_tokens) < 3:
-                    init_width = init_width + 10
-                    init_height = init_height + 10
+                    init_width = init_width + 20
                     continue
                 string_expression = ''
                 for math_token in math_tokens:
                     string_expression = string_expression + str(math_token)
                 try:
                     result = eval(string_expression)
-                    return result
+                    return str(result)
                 except:
                     continue
             else:
+                time_try = time_try + 1
                 init_width = init_width + 20
-                init_height = init_height + 20
+                init_height = init_height + 5
+                if time_try == 10:
+                    tokens = text.split(' ')
+                    math_tokens = []
+                    for token in tokens:
+                        try:
+                            if token in ['+', '-', 'x', '/', '(', ')']:
+                                math_tokens.append(token)
+                            else:
+                                int_token = int(token.strip())
+                                math_tokens.append(int_token)
+                        except ValueError:
+                            pass
+                    if len(math_tokens) < 3:
+                        init_width = init_width + 20
+                        continue
+                    string_expression = ''
+                    for math_token in math_tokens:
+                        string_expression = string_expression + str(math_token)
+                    try:
+                        result = eval(string_expression)
+                        return str(result)
+                    except:
+                        continue
+    else:
+        print('Bỏ qua giải')
+        return -1
 
 
 print(solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png'))

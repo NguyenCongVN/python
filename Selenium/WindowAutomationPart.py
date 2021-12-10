@@ -1,3 +1,4 @@
+import time
 import traceback
 from Interface.DiscordData import DiscordData
 from Interface.Error import ProcessError
@@ -6,6 +7,7 @@ from Interface.TwitterData import TwitterData
 from procedure import *
 from typing import Union, List
 from selenium.webdriver.support.ui import WebDriverWait
+from ImageProcessingOCR import solveChallengeTelegram
 
 pyautogui.FAILSAFE = False
 cap = 0
@@ -359,7 +361,7 @@ def main():
 
         index_proxy = 0
         index_SoLanChay = 0
-        for twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
+        for email, twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
             time_try = 0
             index_SoLanChay = index_SoLanChay + 1
             while True:
@@ -440,7 +442,7 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500')
+                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1965360781')
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -461,64 +463,66 @@ def main():
                     print('Nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=5)
 
-                    # Vào Group và join
-                    print('Tìm vào group')
-                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='@chumbivalley02')
+                    # Kiểm tra captcha
+                    print('Kiểm tra giải toán')
+                    result = solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png')
 
-                    # nhấn join
-                    print('Nhấn join')
-                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\JoinButton.png')
+                    # Điền vào edit text
+                    if result != -1:
+                        DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=result)
 
-                    # Quay trở lại tìm nhấn bot
-                    print('Quay về bot')
-                    QuayVeBot(telegramApp=telegramApp)
-
-                    # Nhấn check xem hoàn thành chưa
-                    print('Nhấn check')
-                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\CheckButton.png')
-
-                    # Nhấn continue
-                    print('Đợi 5s rồi nhấn continue')
-                    time.sleep(5)
-                    clickUntilDisapper(imagePath='Image\\ContinueButton.png')
-
-                    # Điền link vào channel
-                    print('Vào channel')
-                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Chumbi Valley - Announcements')
-
-                    # nhấn join
-                    print('Nhấn Join')
-                    clickUntilDisapper(imagePath='Image\\JoinButton.png')
-
-                    # Quay lại bot
-                    print('Quay về bot')
-                    QuayVeBot(telegramApp=telegramApp)
-
-                    # Submit Detail
+                    # Nhấn submit detail
                     print('Nhấn submit detail')
-                    clickUntilDisapper(imagePath='Image\\SubmitDetailButton.png')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\SubmitDetail_1.png', gioiHan=10)
 
-                    # Nhấn Done
-                    print('Nhấn Done')
-                    clickUntilDisapper(imagePath='Image\\DoneButton.png')
+                    # Điền email
+                    print('Điền email')
+                    DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=email)
+                    time.sleep(10)
 
-                    time.sleep(5)
-
-                    # Điền twitter username
-                    print('Điền twitter username')
+                    # Điền twitter
+                    print('Điền twitter')
                     DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=twitterAcc.username)
-
-                    # Điền discord ID
-                    print('Đợi 5s')
                     time.sleep(10)
-                    print('Điền discord ID')
-                    DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=discordAcc.username)
 
-                    # Điền địa chỉ ví
-                    print('Đợi 5s')
-                    time.sleep(10)
-                    print('Điền wallet')
+                    # Nhấn Skip facebook
+                    print('Nhấn Skip Facebook')
+                    clickUntilDisapper(imagePath='Image\\Skip_FB.png')
+
+                    # Nhấn Skip discord
+                    print('Nhấn Skip Discord')
+                    clickUntilDisapper(imagePath='Image\\Skip_Discord.png')
+
+                    # Nhấn No
+                    print('Nhấn No Youtube')
+                    clickUntilDisapper(imagePath='Image\\No_Button.png')
+
+                    # Nhấn No
+                    print('Nhấn No twitter')
+                    clickUntilDisapper(imagePath='Image\\No_Button.png')
+
+                    # Tìm Airdrop Detective
+                    print('Tìm Airdrop Detective')
+                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective')
+
+                    # Nhấn Join
+                    print('Nhấn Join')
+                    clickUntilDisapper(imagePath='Image\\Join_Channel_Button.png')
+
+                    # Về bot
+                    print('Về bot')
+                    QuayVeBot(telegramApp=telegramApp)
+
+                    # Nhấn Yes
+                    print("Nhấn Yes")
+                    clickUntilDisapper(imagePath='Image\\Yes_Button.png')
+
+                    # Điền ví
+                    time.sleep(5)
+                    print('Điền ví')
                     DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=wallet_address)
+
+                    time.sleep(1000)
 
                     # Kiểm tra thành công
                     if detectImage(imagePath='Image\\DontForget.png', gioiHan=20) == 0:
