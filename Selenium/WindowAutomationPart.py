@@ -494,7 +494,7 @@ def main():
 
                     # Nhấn start
                     print('Nhấn start')
-                    clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=5)
+                    clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=3)
 
                     # Kiểm tra captcha
                     print('Kiểm tra giải toán')
@@ -503,10 +503,12 @@ def main():
                     # Điền vào edit text
                     if result != -1:
                         DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=result)
+                        time.sleep(5)
 
                     # Nhấn submit detail
                     print('Nhấn submit detail')
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\SubmitDetail_1.png', gioiHan=10)
+                    time.sleep(10)
 
                     # Điền email
                     print('Điền email')
@@ -529,11 +531,11 @@ def main():
 
                     # Nhấn No
                     print('Nhấn No Youtube')
-                    clickUntilDisapper(imagePath='Image\\No_Button.png')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\No_Button.png', gioiHan=10)
 
                     # Nhấn No
                     print('Nhấn No twitter')
-                    clickUntilDisapper(imagePath='Image\\No_Button.png')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\No_Button.png', gioiHan=10)
 
                     # Tìm Airdrop Detective
                     print('Tìm Airdrop Detective')
@@ -541,7 +543,7 @@ def main():
 
                     # Nhấn Join
                     print('Nhấn Join')
-                    clickUntilDisapper(imagePath='Image\\Join_Channel_Button.png')
+                    clickUntilDisapper(imagePath='Image\\JoinChannel.png')
 
                     # Về bot
                     print('Về bot')
@@ -556,17 +558,35 @@ def main():
                     print('Điền ví')
                     DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=wallet_address)
 
-                    time.sleep(1000)
+                    # # Nhấn Complete Air Drop
+                    # print('Nhấn Complete Airdrop')
+                    # clickUntilDisapper(imagePath='Image\\Complete_Air.png')
+
+                    # Tìm Airdrop Detective 5
+                    print('Tìm Airdrop Detective')
+                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective Community 5')
+
+                    # Nhấn join group
+                    print('Nhấn join group')
+                    clickUntilDisapper(imagePath='Image\\Join_Group.png')
+
+                    #
+                    QuayVeBot(telegramApp=telegramApp)
+
+                    # Nhấn Complete Air Drop lần 2
+                    print('Nhấn Complete Airdrop')
+                    clickUntilDisapper(imagePath='Image\\Complete_Air.png')
+
+                    #
 
                     # Kiểm tra thành công
-                    if detectImage(imagePath='Image\\DontForget.png', gioiHan=20) == 0:
+                    if detectImage(imagePath='Image\\Finish.png', gioiHan=20) != -1:
                         # Thành Công ----------------------------------------
                         print('Thành Công')
                         print('Ghi lại vào file text result')
                         with open('result.txt', 'a') as file:
                             file.writelines(f'{twitterAcc.username}:1\n')
                         captureScreen(number=f'success_{index}')
-
                     else:
                         print('Không thành công')
                         with open('result.txt', 'a') as file:

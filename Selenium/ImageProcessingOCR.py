@@ -68,9 +68,17 @@ def solveChallengeTelegram(signitureImagePath):
             path = CropImage(x=result[0], y=result[1] + 20, width=init_width, hieght=init_height)
             text = getTextValueFromImage(path)
             print(text)
+            time_try = time_try + 1
+            try_ops = None
             if '=' in text:
-                tokens = text.split(' ')
                 math_tokens = []
+                if time_try == 10:
+                    text = text.replace('=', '')
+                    for ops in ['+', '-', 'x', '/']:
+                        if ops in text:
+                            text = text.replace(ops, " ")
+                            try_ops = ops
+                tokens = text.split(' ')
                 for token in tokens:
                     try:
                         if token in ['+', '-', 'x', '/', '(', ')']:
@@ -78,6 +86,9 @@ def solveChallengeTelegram(signitureImagePath):
                         else:
                             int_token = int(token.strip())
                             math_tokens.append(int_token)
+                            if try_ops:
+                                math_tokens.append(try_ops)
+                                try_ops = None
                     except ValueError:
                         pass
                 if len(math_tokens) < 3:
@@ -92,12 +103,16 @@ def solveChallengeTelegram(signitureImagePath):
                 except:
                     continue
             else:
-                time_try = time_try + 1
                 init_width = init_width + 20
                 init_height = init_height + 5
+                try_ops = None
                 if time_try == 10:
-                    tokens = text.split(' ')
                     math_tokens = []
+                    for ops in ['+', '-', 'x', '/']:
+                        if ops in text:
+                            text = text.replace(ops, " ")
+                            try_ops = ops
+                    tokens = text.split(' ')
                     for token in tokens:
                         try:
                             if token in ['+', '-', 'x', '/', '(', ')']:
@@ -105,6 +120,9 @@ def solveChallengeTelegram(signitureImagePath):
                             else:
                                 int_token = int(token.strip())
                                 math_tokens.append(int_token)
+                                if try_ops:
+                                    math_tokens.append(try_ops)
+                                    try_ops = None
                         except ValueError:
                             pass
                     if len(math_tokens) < 3:
@@ -121,6 +139,5 @@ def solveChallengeTelegram(signitureImagePath):
     else:
         print('Bỏ qua giải')
         return -1
-
 
 # print(solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png'))
