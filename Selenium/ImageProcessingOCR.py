@@ -123,4 +123,4 @@ def solveChallengeTelegram(signitureImagePath):
         return -1
 
 
-print(solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png'))
+# print(solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png'))

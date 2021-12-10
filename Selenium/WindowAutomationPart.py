@@ -179,6 +179,21 @@ def readDataWallet(WalletPath: str) -> Union[int, List[str]]:
         return -1
 
 
+def readDataEmail(EmailPath: str) -> Union[int, List[str]]:
+    try:
+        with open(EmailPath) as fileData:
+            lines = fileData.readlines()
+            listEmailData = []
+            for line in lines:
+                listEmailData.append(line)
+            fileData.close()
+            return listEmailData
+    except Exception as err:
+        print(err)
+        traceback.print_exc()
+        return -1
+
+
 def readDataTelePath(TelePath: str) -> Union[int, List[str]]:
     try:
         with open(TelePath) as fileData:
@@ -271,6 +286,21 @@ def xoaThongTinDiscord(DiscordDataPath: str, discord_delete_ID: str) -> Union[in
         return -1
 
 
+def xoaThongTinEmail(EmailDataPath: str, email: str) -> Union[int]:
+    try:
+        with open(EmailDataPath) as fileData:
+            lines = fileData.readlines()
+        with open(EmailDataPath, "w") as f:
+            for line in lines:
+                if line.strip("\n") != email.strip("\n"):
+                    f.write(line)
+            fileData.close()
+    except Exception as err:
+        print(err)
+        traceback.print_exc()
+        return -1
+
+
 def TimIndexTeleChay():
     with open('index.txt') as indexFile:
         index = indexFile.read()
@@ -289,7 +319,14 @@ def main():
         print('Đọc file config thành công')
 
         print(configData.twitter_data_path, configData.proxy_data_path,
-              configData.discord_data_path, configData.wallet_path)
+              configData.discord_data_path, configData.wallet_path, configData.gmail_data_path)
+
+        # Nhận để lấy data email
+        print(f'Tiến hành đọc data email')
+        dataEmail = readDataEmail(configData.gmail_data_path)
+        if dataEmail == -1:
+            print('Lỗi khi đọc thông tin tài khoản email')
+            return
 
         # Nhận để lấy data twitter
         print(f'Tiến hành đọc data twitter')
@@ -327,23 +364,23 @@ def main():
             return
 
         # Kiểm tra số thư mục trong folder
-        soThuMucTelegram = len(getAllSubDir(fr'{os.getcwd()}\Tele\Tele'))
+        soThuMucTelegram = len(getAllSubDir(fr'{os.getcwd()}\VPS 79\VPS 79'))
 
         print('Số thư mục telegram:', soThuMucTelegram)
         print('Số tài khoản Twitter:', len(dataTwitter))
         print('Số Wallet:', len(dataWallet))
         print('Số discord:', len(dataDiscord))
+        print('Số email:', len(dataEmail))
         print('Số proxy:', len(dataProxy))
-
         soLanDungIP = 10
 
         # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
         number_acc = len(dataTwitter)
-        if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or (
+        if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or len(dataEmail) != number_acc or (
                 len(dataProxy) * soLanDungIP) < number_acc or len(
             dataDiscord) != number_acc or soThuMucTelegram < number_acc:
             print(
-                'Số thông tin twitter,wallet, discord không bằng nhau hoặc số thư mục telegram ít hơn số account đang có hoặc số proxy không đủ để dùng')
+                'Số thông tin twitter,wallet, email, discord không bằng nhau hoặc số thư mục telegram ít hơn số account đang có hoặc số proxy không đủ để dùng')
             return
         else:
             if soThuMucTelegram > number_acc:
@@ -361,7 +398,7 @@ def main():
 
         index_proxy = 0
         index_SoLanChay = 0
-        for email, twitterAcc, discordAcc, wallet_address in zip(dataTwitter, dataDiscord, dataWallet):
+        for email, twitterAcc, discordAcc, wallet_address in zip(dataEmail, dataTwitter, dataDiscord, dataWallet):
             time_try = 0
             index_SoLanChay = index_SoLanChay + 1
             while True:
@@ -455,10 +492,6 @@ def main():
                     print('Quay về bot')
                     bringToFrontControl(control=telegramApp, tuKhoa='Tele')
 
-                    # # Điền link ref
-                    # print('Vào link ref')
-                    # TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='https://t.me/CHUMBIVALLEY_Bot?start=r04634236800')
-
                     # Nhấn start
                     print('Nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=5)
@@ -490,8 +523,9 @@ def main():
                     clickUntilDisapper(imagePath='Image\\Skip_FB.png')
 
                     # Nhấn Skip discord
-                    print('Nhấn Skip Discord')
-                    clickUntilDisapper(imagePath='Image\\Skip_Discord.png')
+                    print('Điền discord username')
+                    DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=discordAcc.username)
+                    time.sleep(10)
 
                     # Nhấn No
                     print('Nhấn No Youtube')
@@ -548,6 +582,8 @@ def main():
 
                     xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
                                        discord_delete_ID=discordAcc.username)
+
+                    xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
 
                     # Đóng hết telegram
                     try:

@@ -109,7 +109,7 @@ def XoaFilePath(path):
 
 
 def XoaHetTeleExe():
-    for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+    for folder in getAllSubDir(fr'{os.getcwd()}\VPS 79\VPS 79'):
         filePath = fr'{folder}\Telegram.exe'
         try:
             XoaFilePath(filePath)
