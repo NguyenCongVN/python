@@ -8,12 +8,13 @@ import random
 from tkinter import Tk
 from subprocess import Popen, PIPE
 from pywinauto import Desktop
-from python_imagesearch.imagesearch import imagesearch #, imagesearchMultiple
+from python_imagesearch.imagesearch import imagesearch  # , imagesearchMultiple
 from ControlType import ControlType
 import os
 import undetected_chromedriver.v2 as uc
 import requests
 from requests.auth import HTTPProxyAuth
+from selenium.webdriver.chrome.webdriver import WebDriver
 
 
 class waitThread(threading.Thread):
@@ -500,13 +501,14 @@ def open_driver(chromePath: str, chrome_folder_path: str, driverPath: str, try_t
             try:
                 print('Đóng hết chrome')
                 os.system("taskkill /f /im chrome.exe")
+                quitAllDriver(driver=driver)
             except:
                 pass
             if count == try_time:
                 return 1
 
 
-def quitAllDriver(driver):
+def quitAllDriver(driver: WebDriver):
     for handle in driver.window_handles:
         driver.switch_to.window(handle)
         driver.close()
@@ -570,6 +572,7 @@ def clickUntilDisapper(imagePath, gioiHan=2):
         time.sleep(5)
     print('Dừng nhấn')
     return is_clicked
+
 
 def getAllSubDir(path):
     subfolders = [f.path for f in os.scandir(path) if f.is_dir()]

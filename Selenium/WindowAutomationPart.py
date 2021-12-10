@@ -333,7 +333,7 @@ def main():
         print('Số discord:', len(dataDiscord))
         print('Số proxy:', len(dataProxy))
 
-        soLanDungIP = 4
+        soLanDungIP = 10
 
         # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
         number_acc = len(dataTwitter)
@@ -354,7 +354,7 @@ def main():
         # Xóa các folder không chạy tới
         print('Xóa folder không dùng')
         for i, folderPath in enumerate(dataTelePath):
-            if i not in range(index - 1, index + number_acc - 1):
+            if i not in range(index, index + number_acc):
                 XoaFolder(folderPath[0:-1])
 
         index_proxy = 0
@@ -440,7 +440,7 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800')
+                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500')
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -531,6 +531,8 @@ def main():
 
                     else:
                         print('Không thành công')
+                        with open('result.txt', 'a') as file:
+                            file.writelines(f'{twitterAcc.username}:0\n')
                         captureScreen(number=f'failed_{index}')
                     # Nhấn chọn bot
                     print('Xóa các thông tin')

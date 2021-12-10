@@ -17,5 +17,7 @@ def XoaFilePath(path):
 #     except:
 #         pass
 
-# with open('TelePath1.txt' , 'w') as file:
-#     for
+with open('TelePath.txt' , 'w') as file:
+    for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+        file.write(f'{folder}\n')
+    file.close()
