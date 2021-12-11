@@ -92,7 +92,7 @@ def QuayVeBot(telegramApp):
 def TimVaVaoTelegramVoiTuKhoa(telegramApp, tuKhoa=''):
     searchEdit = TimSearchEdit(telegramApp=telegramApp)
     typeKey(control=searchEdit, key=tuKhoa)
-    time.sleep(15)
+    time.sleep(10)
     searchEdit = TimSearchEdit(telegramApp=telegramApp)
     typeKeyEnter(control=searchEdit)
 
