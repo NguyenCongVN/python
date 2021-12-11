@@ -40,14 +40,11 @@ def getTextValueFromImage(path):
     # Then rectangular part is cropped and passed on
     # to pytesseract for extracting text from it
     # Extracted text is then written into the text file
-    import matplotlib.pyplot as plt
     recognizedText = ""
     for cnt in contours:
         x, y, w, h = cv2.boundingRect(cnt)
         # Cropping the text block for giving input to OCR
         cropped = im2[y:y + h, x:x + w]
-        plt.imshow(cropped)
-        # plt.show()
 
         # Apply OCR on the cropped image
         text = pytesseract.image_to_string(cropped)

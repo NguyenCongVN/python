@@ -364,7 +364,7 @@ def main():
             return
 
         # Kiểm tra số thư mục trong folder
-        soThuMucTelegram = len(getAllSubDir(fr'{os.getcwd()}\VPS 79\VPS 79'))
+        soThuMucTelegram = len(getAllSubDir(fr'{os.getcwd()}\Tele\Tele'))
 
         print('Số thư mục telegram:', soThuMucTelegram)
         print('Số tài khoản Twitter:', len(dataTwitter))
@@ -558,24 +558,28 @@ def main():
                     print('Điền ví')
                     DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=wallet_address)
 
+                    # Bỏ qua join
+                    print('Bỏ qua join ! Nhấn skip')
+                    clickUntilDisapper(imagePath='Image\\SkipButton.png')
+
                     # # Nhấn Complete Air Drop
                     # print('Nhấn Complete Airdrop')
                     # clickUntilDisapper(imagePath='Image\\Complete_Air.png')
 
-                    # Tìm Airdrop Detective 5
-                    print('Tìm Airdrop Detective')
-                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective Community 5')
-
-                    # Nhấn join group
-                    print('Nhấn join group')
-                    clickUntilDisapper(imagePath='Image\\Join_Group.png')
-
+                    # # Tìm Airdrop Detective 5
+                    # print('Tìm Airdrop Detective')
+                    # TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective Community 5')
                     #
-                    QuayVeBot(telegramApp=telegramApp)
+                    # # Nhấn join group
+                    # print('Nhấn join group')
+                    # clickUntilDisapper(imagePath='Image\\Join_Group.png')
+                    #
+                    # #
+                    # QuayVeBot(telegramApp=telegramApp)
 
-                    # Nhấn Complete Air Drop lần 2
-                    print('Nhấn Complete Airdrop')
-                    clickUntilDisapper(imagePath='Image\\Complete_Air.png')
+                    # # Nhấn Complete Air Drop lần 2
+                    # print('Nhấn Complete Airdrop')
+                    # clickUntilDisapper(imagePath='Image\\Complete_Air.png')
 
                     #
 
@@ -638,6 +642,8 @@ def main():
                                       wallet_delete=wallet_address)
                         xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
                                            discord_delete_ID=discordAcc.username)
+
+                        xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
 
                         # Đóng hết telegram
                         try:

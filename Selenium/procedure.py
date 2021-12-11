@@ -92,7 +92,7 @@ def QuayVeBot(telegramApp):
 def TimVaVaoTelegramVoiTuKhoa(telegramApp, tuKhoa=''):
     searchEdit = TimSearchEdit(telegramApp=telegramApp)
     typeKey(control=searchEdit, key=tuKhoa)
-    time.sleep(10)
+    time.sleep(15)
     searchEdit = TimSearchEdit(telegramApp=telegramApp)
     typeKeyEnter(control=searchEdit)
 
@@ -109,7 +109,7 @@ def XoaFilePath(path):
 
 
 def XoaHetTeleExe():
-    for folder in getAllSubDir(fr'{os.getcwd()}\VPS 79\VPS 79'):
+    for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
         filePath = fr'{folder}\Telegram.exe'
         try:
             XoaFilePath(filePath)

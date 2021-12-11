@@ -1,4 +1,7 @@
+numpy==1.21.3
+opencv_python==4.5.4.58
 PyAutoGUI==0.9.53
+pytesseract==0.3.8
 python_imagesearch==1.2.0
 pywinauto==0.6.8
 requests==2.26.0
