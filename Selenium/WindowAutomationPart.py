@@ -211,7 +211,7 @@ def readDataTelePath(TelePath: str) -> Union[int, List[str]]:
 
 def readDataDiscord(DiscordDataPath: str) -> Union[int, List[DiscordData]]:
     try:
-        with open(DiscordDataPath, encoding="utf8") as fileData:
+        with open(DiscordDataPath, encoding="ISO-8859-1") as fileData:
             lines = fileData.readlines()
             listDiscordData = []
             for line in lines:
