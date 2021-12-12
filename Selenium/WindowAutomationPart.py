@@ -440,7 +440,8 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500')
+                    # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500') Ha
+                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
