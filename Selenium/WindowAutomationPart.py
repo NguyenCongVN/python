@@ -558,28 +558,28 @@ def main():
                     print('Điền ví')
                     DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=wallet_address)
 
-                    # Bỏ qua join
-                    print('Bỏ qua join ! Nhấn skip')
-                    clickUntilDisapper(imagePath='Image\\SkipButton.png')
+                    # # Bỏ qua join
+                    # print('Bỏ qua join ! Nhấn skip')
+                    # clickUntilDisapper(imagePath='Image\\SkipButton.png')
 
                     # # Nhấn Complete Air Drop
                     # print('Nhấn Complete Airdrop')
                     # clickUntilDisapper(imagePath='Image\\Complete_Air.png')
 
-                    # # Tìm Airdrop Detective 5
-                    # print('Tìm Airdrop Detective')
-                    # TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective Community 5')
-                    #
-                    # # Nhấn join group
-                    # print('Nhấn join group')
-                    # clickUntilDisapper(imagePath='Image\\Join_Group.png')
-                    #
-                    # #
-                    # QuayVeBot(telegramApp=telegramApp)
+                    # Tìm Airdrop Detective 5
+                    print('Tìm Airdrop Detective')
+                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective Community 6')
 
-                    # # Nhấn Complete Air Drop lần 2
-                    # print('Nhấn Complete Airdrop')
-                    # clickUntilDisapper(imagePath='Image\\Complete_Air.png')
+                    # Nhấn join group
+                    print('Nhấn join group')
+                    clickUntilDisapper(imagePath='Image\\Join_Group.png')
+
+                    #
+                    QuayVeBot(telegramApp=telegramApp)
+
+                    # Nhấn Complete Air Drop lần 2
+                    print('Nhấn Complete Airdrop')
+                    clickUntilDisapper(imagePath='Image\\Complete_Air.png')
 
                     #
 
