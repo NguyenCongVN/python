@@ -440,8 +440,8 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500') Ha
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
+                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500') #Ha
+                    # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -470,9 +470,9 @@ def main():
                     print('Nhấn join')
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\JoinButton.png')
 
-                    # Quay trở lại tìm nhấn bot
-                    print('Quay về bot')
-                    QuayVeBot(telegramApp=telegramApp)
+                    # # Quay trở lại tìm nhấn bot
+                    # print('Quay về bot')
+                    # QuayVeBot(telegramApp=telegramApp)
 
                     # Nhấn check xem hoàn thành chưa
                     print('Nhấn check')
