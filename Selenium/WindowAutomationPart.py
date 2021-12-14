@@ -1,3 +1,4 @@
+import time
 import traceback
 from Interface.DiscordData import DiscordData
 from Interface.Error import ProcessError
@@ -356,6 +357,12 @@ def main():
         for i, folderPath in enumerate(dataTelePath):
             if i not in range(index, index + number_acc):
                 XoaFolder(folderPath[0:-1])
+        # init_data_path = ''
+        # with open('initTelePath.txt', 'r') as file:
+        #     init_data_path = file.read()
+        #     file.close()
+
+        init_data_path = dataTelePath[index][0:-1]
 
         index_proxy = 0
         index_SoLanChay = 0
@@ -404,13 +411,15 @@ def main():
                     # thủ tục chính
 
                     # -------------------------------------------
+                    os.rename(dataTelePath[index][0:-1], init_data_path)
+
                     # copy telegram.exe
                     print('Copy telegram')
-                    CopyTelegram(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
+                    CopyTelegram(telepath=rf'{init_data_path}\Telegram.exe')
 
                     # Mở telegram ứng với index
                     print('Mở telegram với index')
-                    telegramApp = MoTelegramIndex(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
+                    telegramApp = MoTelegramIndex(telepath=rf'{init_data_path}\Telegram.exe')
 
                     # Nhấn Hide
                     print('Nhấn HIDE')
@@ -421,8 +430,8 @@ def main():
 
                     # Mở chrome và vào link ref
                     # xóa hết data trước khi đăng kí
-                    print('xóa hết data')
-                    deleteContentFolder(f'{configData.chrome_folder_path}\Data\profile')
+                    # print('xóa hết data')
+                    # deleteContentFolder(f'{configData.chrome_folder_path}\Data\profile')
                     # Tạo driver
                     print('Đang tạo driver')
                     driver = open_driver(chromePath=configData.chrome_path, driverPath=configData.webdriverPath,
@@ -440,8 +449,8 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500') #Ha
-                    # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
+                    # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500')  # Ha
+                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -459,8 +468,13 @@ def main():
                     # TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='https://t.me/CHUMBIVALLEY_Bot?start=r04634236800')
 
                     # Nhấn start
-                    print('Nhấn start')
+                    time.sleep(5)
+                    print('Đợi 5s rồi nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=5)
+
+                    # Nhấn continue
+                    print('Nhấn continue')
+                    clickUntilDisapper(imagePath='Image\\ContinueButton.png')
 
                     # Vào Group và join
                     print('Tìm vào group')
@@ -474,14 +488,9 @@ def main():
                     # print('Quay về bot')
                     # QuayVeBot(telegramApp=telegramApp)
 
-                    # Nhấn check xem hoàn thành chưa
-                    print('Nhấn check')
-                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\CheckButton.png')
-
-                    # Nhấn continue
-                    print('Đợi 5s rồi nhấn continue')
-                    time.sleep(5)
-                    clickUntilDisapper(imagePath='Image\\ContinueButton.png')
+                    # # Nhấn check xem hoàn thành chưa
+                    # print('Nhấn check')
+                    # detectImageAndClickLeftTopNewSingle(imagePath='Image\\CheckButton.png')
 
                     # Điền link vào channel
                     print('Vào channel')
@@ -555,7 +564,7 @@ def main():
                     time.sleep(2)
 
                     print('Xóa folder telegram')
-                    XoaFolder(rf'{dataTelePath[index][0:-1]}')
+                    XoaFolder(rf'{init_data_path}')
 
                     index = index + 1
                     time.sleep(5)
@@ -589,7 +598,7 @@ def main():
                         time.sleep(2)
 
                         print('Xóa folder telegram')
-                        XoaFolder(rf'{dataTelePath[index][0:-1]}')
+                        XoaFolder(rf'{init_data_path}')
 
                         # XoaDataTelegram(TelegramPath=configData.telegram_data_path, telegram_delete=telegramUserName)
                         print('Chuyển sang acc khác')
