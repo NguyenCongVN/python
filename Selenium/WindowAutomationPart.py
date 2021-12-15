@@ -357,12 +357,12 @@ def main():
         for i, folderPath in enumerate(dataTelePath):
             if i not in range(index, index + number_acc):
                 XoaFolder(folderPath[0:-1])
-        # init_data_path = ''
-        # with open('initTelePath.txt', 'r') as file:
-        #     init_data_path = file.read()
-        #     file.close()
+        init_data_path = ''
+        with open('initTelePath.txt', 'r') as file:
+            init_data_path = file.read()
+            file.close()
 
-        init_data_path = dataTelePath[index][0:-1]
+        # init_data_path = dataTelePath[index][0:-1]
 
         index_proxy = 0
         index_SoLanChay = 0
@@ -450,7 +450,7 @@ def main():
 
                     # Tới trang ref
                     # driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r02789726500')  # Ha
-                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800') #HA
+                    driver.get('https://t.me/CHUMBIVALLEY_Bot?start=r04634236800')  # HA
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -488,9 +488,13 @@ def main():
                     # print('Quay về bot')
                     # QuayVeBot(telegramApp=telegramApp)
 
-                    # # Nhấn check xem hoàn thành chưa
-                    # print('Nhấn check')
-                    # detectImageAndClickLeftTopNewSingle(imagePath='Image\\CheckButton.png')
+                    # Quay lại bot
+                    print('Quay về bot')
+                    QuayVeBot(telegramApp=telegramApp)
+
+                    # Nhấn check xem hoàn thành chưa
+                    print('Nhấn check')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\CheckButton.png')
 
                     # Điền link vào channel
                     print('Vào channel')
@@ -503,6 +507,10 @@ def main():
                     # Quay lại bot
                     print('Quay về bot')
                     QuayVeBot(telegramApp=telegramApp)
+
+                    # Nhấn continue
+                    print('Nhấn continue')
+                    clickUntilDisapper(imagePath='Image\\ContinueButton.png')
 
                     # Submit Detail
                     print('Nhấn submit detail')
