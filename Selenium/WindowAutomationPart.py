@@ -496,10 +496,10 @@ def main():
                     print('Nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=3)
 
-                    # Lỗi 2 lần
-                    print('Đưa cmd lên đầu')
-                    explore = OpenWindow('cmd')
-                    bringToFrontControl(control=explore, tuKhoa='cmd')
+                    # # Lỗi 2 lần
+                    # print('Đưa cmd lên đầu')
+                    # explore = OpenWindow('cmd')
+                    # bringToFrontControl(control=explore, tuKhoa='cmd')
 
                     # Kiểm tra captcha
                     print('Kiểm tra giải toán')
