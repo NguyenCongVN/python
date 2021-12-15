@@ -9,6 +9,7 @@ def getAllSubDir(path):
 def XoaFilePath(path):
     os.remove(path)
 
+
 #
 # for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
 #     filePath = fr'{folder}\Telegram.exe'
@@ -17,20 +18,34 @@ def XoaFilePath(path):
 #     except:
 #         pass
 
-with open('TelePath.txt' , 'w') as file:
-    for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
-        file.write(f'{folder}\n')
-    file.close()
+# with open('TelePath.txt' , 'w') as file:
+#     for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+#         file.write(f'{folder}\n')
+#     file.close()
 
-# import discord
-# from discord.ext import commands
-#
-# intents = discord.Intents.all()
-# client = commands.Bot(command_prefix = 'bday ', intents = intents)
-#
-# @client.event
-# async def on_ready():
-#     guild = client.get_guild(873805775460511765)
-#     memberList = guild.members
-#     print(memberList)
-# client.run('OTE5MjI1MDI4MzYzNTU4OTQz.YbStBQ.CW9nFQitspenp0gYyj0UEk0RNE8')
+
+from os import listdir
+from os.path import isfile, join
+
+# with open('Note.txt', 'w') as file:
+#     for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+#         not_contain = True
+#         folders = getAllSubDir(folder)
+#         print(folders)
+#         for foldercheck in folders:
+#             if 'tdata' in foldercheck:
+#                 print('contain')
+#                 not_contain = False
+#         if not_contain:
+#             file.write(f'{folder}\n')
+#     file.close()
+
+
+with open('Note.txt' , 'r') as noteFile:
+    FolderNotes = noteFile.readlines()
+    with open('TelePath.txt', 'r') as telePathFile:
+        OldTelePaths = telePathFile.readlines()
+        with open('TelePathNew.txt', 'w') as telePathNew:
+            for OldTelePath in OldTelePaths:
+                if OldTelePath not in FolderNotes:
+                    telePathNew.write(f'{OldTelePath}')

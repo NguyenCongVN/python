@@ -496,6 +496,11 @@ def main():
                     print('Nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=3)
 
+                    # Lỗi 2 lần
+                    print('Đưa explore lên đầu')
+                    explore = OpenWindow('Sele')
+                    bringToFrontControl(control=explore, tuKhoa='Sele')
+
                     # Kiểm tra captcha
                     print('Kiểm tra giải toán')
                     result = solveChallengeTelegram(fr'{os.getcwd()}\Image\TelegramChallengeStart.png')

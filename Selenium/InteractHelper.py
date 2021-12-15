@@ -584,10 +584,10 @@ def clickUntilDisapper(imagePath, gioiHan=2):
     count = 0
     is_clicked = False
     while count < gioiHan:
-        if detectImageAndClickLeftTopNewSingle(imagePath=imagePath, gioiHan=2) == 0:
+        if detectImageAndClickLeftTopNewSingle(imagePath=imagePath, gioiHan=1) == 0:
             is_clicked = True
         count = count + 1
-        time.sleep(10)
+        time.sleep(5)
     print('Dừng nhấn')
     return is_clicked
 
