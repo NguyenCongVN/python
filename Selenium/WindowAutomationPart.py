@@ -479,7 +479,7 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1965360781')
+                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1995415273')
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -497,9 +497,9 @@ def main():
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=3)
 
                     # Lỗi 2 lần
-                    print('Đưa explore lên đầu')
-                    explore = OpenWindow('Sele')
-                    bringToFrontControl(control=explore, tuKhoa='Sele')
+                    print('Đưa cmd lên đầu')
+                    explore = OpenWindow('cmd')
+                    bringToFrontControl(control=explore, tuKhoa='cmd')
 
                     # Kiểm tra captcha
                     print('Kiểm tra giải toán')
