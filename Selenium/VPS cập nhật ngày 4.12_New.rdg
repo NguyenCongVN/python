@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<RDCMan programVersion="2.83" schemaVersion="3">
+  <file>
+    <credentialsProfiles />
+    <properties>
+      <expanded>True</expanded>
+      <name>CHMB</name>
+    </properties>
+    <logonCredentials inherit="None">
+      <profileName scope="Local">Custom</profileName>
+      <userName>Administrator</userName>
+      <password>AQAAANCMnd8BFdERjHoAwE/Cl+sBAAAAjfImWaY4vUGsomT9emvcJgAAAAACAAAAAAAQZgAAAAEAACAAAACEz+4+US5mfcguNSLvHn/OyRRYIW4rVmS26Hk8u7e6CAAAAAAOgAAAAAIAACAAAAB3MhcFNTNEx+Ox96Lh2XrBZC0uirpJ007atJS12pLh1yAAAAB5ebZljz2YrshuJutEScEqhM9QbaznGfwxBtp5XKC94kAAAADrZrqA9DBbTvIW66o8/5TDpsYd2kj9n3+lB7bHkLM9QMYr4I48WzaydBr4ufCGA7DCNjRKBY31TXXlPbF0gUOH</password>
+      <domain>WIN-AGFGRSH53BH</domain>
+    </logonCredentials>
+    <server>
+      <properties>
+        <displayName>CHUMBI_1</displayName>
+        <name>103.173.227.23</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_2</displayName>
+        <name>103.173.227.65</name>
+      </properties>
+      <logonCredentials inherit="None">
+        <profileName scope="Local">Custom</profileName>
+        <userName>administrator</userName>
+        <password>KeTtwu1FKC5Iz3z8I+1l5nSGpPT9TKrERQbLTJlzKauzd4P5RlhYT/ftF0+ZZwljLOM4VUX4rAKsrlntdceTTZjKihllzh1/X5Z/NLDAx+7faSThTjs3Y7h0sGoDvZLGj0p5rt9fQiR16d+bupZfGUKuOEHyXRmT1FaWwEJczxAYf7mtkJH/Jf/EiI3Hq3tYVLtmybPGrWEi3sMD+NPCwsnwxsMCyX0dkE/DCubsYYlvatlH+q4LVyXG2Xaguj2lRvKPnkaY7PgX15wRmcCnGhFcJ3FAkReb1q+hN/7A3Fo23iIBYAdR+HtmTbDJbrX03+HT3LftG70sliqlwyuq6w==</password>
+        <domain>LAPTOP-VQRUMD2I</domain>
+      </logonCredentials>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_3</displayName>
+        <name>103.173.227.9</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_4</displayName>
+        <name>103.173.227.11</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_5</displayName>
+        <name>103.173.227.10</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_6</displayName>
+        <name>103.173.226.231</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_7</displayName>
+        <name>103.173.226.232</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_8</displayName>
+        <name>103.173.226.233</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_9</displayName>
+        <name>103.173.226.234</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_10</displayName>
+        <name>103.173.226.235</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_11</displayName>
+        <name>103.195.238.23</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_12</displayName>
+        <name>103.195.238.28</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_13</displayName>
+        <name>103.173.226.42</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_14</displayName>
+        <name>103.195.238.21</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_15</displayName>
+        <name>103.173.226.41</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_16</displayName>
+        <name>103.195.238.22</name>
+      </properties>
+    </server>
+    <server>
+      <properties>
+        <displayName>CHUMBI_17</displayName>
+        <name>103.195.238.29</name>
+      </properties>
+    </server>
+  </file>
+  <connected />
+  <favorites />
+  <recentlyUsed />
+</RDCMan>

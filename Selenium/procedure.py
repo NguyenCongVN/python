@@ -119,3 +119,54 @@ def XoaHetTeleExe():
 
 def XoaFolder(path):
     shutil.rmtree(path, ignore_errors=True)
+
+
+def DowloadTele(url):
+    from urllib.request import urlopen
+
+    file_name = url.split('/')[-1]
+    import os
+    if os.path.exists(file_name):
+        print('File đã tồn tại! Bỏ qua tải về')
+        return
+    u = urlopen(url)
+    f = open(file_name, 'wb')
+    meta = u.info()
+    file_size = int(meta.getheaders("Content-Length")[0])
+    print("Downloading: %s Bytes: %s" % (file_name, file_size))
+
+    file_size_dl = 0
+    block_sz = 8192
+    while True:
+        buffer = u.read(block_sz)
+        if not buffer:
+            break
+        file_size_dl += len(buffer)
+        f.write(buffer)
+        status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+        status = status + chr(8) * (len(status) + 1)
+        print(status)
+    f.close()
+    print('Tải về thành công! Đang giải nén')
+    extractFile(f'{os.getcwd()}\\{file_size}', out_path=f'{os.getcwd()}\\Tele\\Tele')
+    with open('TelePath.txt', 'w') as file:
+        for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+            file.write(f'{folder}\n')
+        file.close()
+
+
+def extractFile(path: str, out_path):
+    import patoolib
+    from pathlib import Path
+    Path(out_path).mkdir(parents=True, exist_ok=True)
+    patoolib.extract_archive(path, outdir=out_path)
+
+
+def TaoData(emails, tws, discords, telePaths, wls):
+    data = []
+    with open('data.txt', 'w') as file:
+        for email, tw, discord, telePath, wl in zip(emails, tws, discords, telePaths, wls):
+            file.write(f'{email}|{tw}|{discord}|{telePath}|{wl}\n')
+            data.append(f'{email}|{tw}|{discord}|{telePath}|{wl}\n')
+        file.close()
+    return data

@@ -1,12 +1,9 @@
-import time
-import traceback
 from Interface.DiscordData import DiscordData
 from Interface.Error import ProcessError
 from Interface.IDOConfig import IDOConfig
 from Interface.TwitterData import TwitterData
 from procedure import *
 from typing import Union, List
-from selenium.webdriver.support.ui import WebDriverWait
 from ImageProcessingOCR import solveChallengeTelegram
 
 pyautogui.FAILSAFE = False
@@ -31,7 +28,8 @@ def openFile(window, number):
             point = pyautogui.center(r)
             pointx, pointy = point
             pyautogui.doubleClick(pointx, pointy)
-        except:
+        except Exception as err:
+            print(err)
             count = count + 1
             continue
 
@@ -52,7 +50,7 @@ def readDataProxy(ProxyPath: str) -> Union[int, List[str]]:
             lines = fileData.readlines()
             listProxyData = []
             for line in lines:
-                listProxyData.append(line)
+                listProxyData.append(line[:-1])
             fileData.close()
             return listProxyData
     except Exception as err:
@@ -136,7 +134,8 @@ def readConfig() -> IDOConfig:
                     idoConfig.proxy_data_path = value
         if idoConfig.webdriverPath == '' or idoConfig.chrome_path == '' or idoConfig.twitter_data_path == '' \
                 or idoConfig.chrome_folder_path == '' or idoConfig.proxy_path == '' or idoConfig.gmail_data_path == '' \
-                or idoConfig.wallet_path == '' or idoConfig.anti_captcha_path == '' or idoConfig.telegram_data_path == '' or idoConfig.discord_data_path == '' \
+                or idoConfig.wallet_path == '' or idoConfig.anti_captcha_path == '' \
+                or idoConfig.telegram_data_path == '' or idoConfig.discord_data_path == '' \
                 or idoConfig.proxy_data_path == '':
             return 1
         else:
@@ -170,7 +169,7 @@ def readDataWallet(WalletPath: str) -> Union[int, List[str]]:
             lines = fileData.readlines()
             listWalletData = []
             for line in lines:
-                listWalletData.append(line)
+                listWalletData.append(line[:-1])
             fileData.close()
             return listWalletData
     except Exception as err:
@@ -185,7 +184,7 @@ def readDataEmail(EmailPath: str) -> Union[int, List[str]]:
             lines = fileData.readlines()
             listEmailData = []
             for line in lines:
-                listEmailData.append(line)
+                listEmailData.append(line[:-1])
             fileData.close()
             return listEmailData
     except Exception as err:
@@ -301,6 +300,21 @@ def xoaThongTinEmail(EmailDataPath: str, email: str) -> Union[int]:
         return -1
 
 
+def xoaThongTinData(wl: str, DataPath='data.txt') -> Union[int]:
+    try:
+        with open(DataPath) as fileData:
+            lines = fileData.readlines()
+        with open(DataPath, "w") as f:
+            for line in lines:
+                if wl in line:
+                    f.write(line)
+            fileData.close()
+    except Exception as err:
+        print(err)
+        traceback.print_exc()
+        return -1
+
+
 def TimIndexTeleChay():
     with open('index.txt') as indexFile:
         index = indexFile.read()
@@ -317,6 +331,11 @@ def main():
             print('Lỗi file config')
             return
         print('Đọc file config thành công')
+
+        print('Tải về Telegram')
+        with open('tele_url.txt', 'r') as file:
+            DowloadTele(file.read())
+            file.close()
 
         print(configData.twitter_data_path, configData.proxy_data_path,
               configData.discord_data_path, configData.wallet_path, configData.gmail_data_path)
@@ -342,12 +361,12 @@ def main():
             print('Lỗi khi đọc thông tin địa chỉ ví')
             return
 
-        # Đọc thông tin tele path
-        print('Tiến hành đọc tele path')
-        dataTelePath = readDataTelePath('TelePath.txt')
-        if dataTelePath == -1:
-            print('Lỗi khi đọc thông tin tele path')
-            return
+        # # Đọc thông tin tele path
+        # print('Tiến hành đọc tele path')
+        # dataTelePath = readDataTelePath('TelePath.txt')
+        # if dataTelePath == -1:
+        #     print('Lỗi khi đọc thông tin tele path')
+        #     return
 
         # Đọc thông tin proxy
         print('Tiến hành đọc proxy')
@@ -356,6 +375,8 @@ def main():
             print('Lỗi khi đọc thông tin proxy')
             return
 
+        soLanDungIP = 10
+
         # Đọc thông tin discord
         print('Tiến hành đọc discord')
         dataDiscord = readDataDiscord(configData.discord_data_path)
@@ -363,42 +384,66 @@ def main():
             print('Lỗi khi đọc thông tin discord')
             return
 
-        # Kiểm tra số thư mục trong folder
-        soThuMucTelegram = len(getAllSubDir(fr'{os.getcwd()}\Tele\Tele'))
-
+        thuMucTelePath = getAllSubDir(fr'{os.getcwd()}\Tele\Tele')
+        soThuMucTelegram = len(thuMucTelePath)
         print('Số thư mục telegram:', soThuMucTelegram)
-        print('Số tài khoản Twitter:', len(dataTwitter))
-        print('Số Wallet:', len(dataWallet))
-        print('Số discord:', len(dataDiscord))
-        print('Số email:', len(dataEmail))
-        print('Số proxy:', len(dataProxy))
-        soLanDungIP = 10
 
-        # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
-        number_acc = len(dataTwitter)
-        if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or len(dataEmail) != number_acc or (
-                len(dataProxy) * soLanDungIP) < number_acc or len(
-            dataDiscord) != number_acc or soThuMucTelegram < number_acc:
-            print(
-                'Số thông tin twitter,wallet, email, discord không bằng nhau hoặc số thư mục telegram ít hơn số account đang có hoặc số proxy không đủ để dùng')
-            return
+        if os.path.exists(f'{os.getcwd()}\\data.txt'):
+            print('Tìm thấy file data.txt ! Chạy từ file data')
+            dataTwitter = []
+            dataDiscord = []
+            dataEmail = []
+            dataWallet = []
+            dataTelePath = []
+            lines = open(f'{os.getcwd()}\\data.txt', 'r')
+            print(f'Số lần chạy {len(lines)}')
+            for line in lines:
+                email, tw, discord, telePath, wl = line.split('|')
+                dataEmail.append(email)
+                dataDiscord.append(discord)
+                dataWallet.append(wl[:-1])
+                dataTwitter.append(tw)
+                dataTelePath.append(telePath)
+            print('Đọc thông tin thành công')
         else:
-            if soThuMucTelegram > number_acc:
-                print('Warning: Số thư mục telegram nhiều hơn số account đang có')
-                time.sleep(10)
-                print('Tiếp tục chạy')
+            print('Không tìm thấy data.txt ! Tiến hành tạo data')
+            # Kiểm tra số thư mục trong folder
+            print('Số tài khoản Twitter:', len(dataTwitter))
+            print('Số Wallet:', len(dataWallet))
+            print('Số discord:', len(dataDiscord))
+            print('Số email:', len(dataEmail))
+            print('Số proxy:', len(dataProxy))
 
-        # --------------------------------------------
-        index = TimIndexTeleChay()  # 58,59 --  Lỗi sesion,60,61 you are not subcribe
-        # Xóa các folder không chạy tới
-        print('Xóa folder không dùng')
-        for i, folderPath in enumerate(dataTelePath):
-            if i not in range(index, index + number_acc):
-                XoaFolder(folderPath[0:-1])
+            # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
+            number_acc = len(dataTwitter)
+            if len(dataTwitter) != number_acc or len(dataWallet) != number_acc or len(dataEmail) != number_acc or (
+                    len(dataProxy) * soLanDungIP) < number_acc or len(dataDiscord) != number_acc \
+                    or soThuMucTelegram < number_acc:
+                print(
+                    'Số thông tin twitter,wallet, email, discord không bằng nhau hoặc'
+                    ' số thư mục telegram ít hơn số account đang có hoặc số proxy không đủ để dùng')
+                return
+            else:
+                if soThuMucTelegram > number_acc:
+                    print('Warning: Số thư mục telegram nhiều hơn số account đang có')
+                    time.sleep(10)
+                    print('Tiếp tục chạy')
+            index = TimIndexTeleChay()  # 58,59 --  Lỗi sesion,60,61 you are not subcribe
+            TaoData(emails=dataEmail, discords=dataDiscord, tws=dataTwitter, wls=dataWallet,
+                    telePaths=thuMucTelePath[index:])
+            dataTelePath = thuMucTelePath[index:]
+            # --------------------------------------------
+
+            # # Xóa các folder không chạy tới
+            # print('Xóa folder không dùng')
+            # for i, folderPath in enumerate(dataTelePath):
+            #     if i not in range(index, index + number_acc):
+            #         XoaFolder(folderPath[0:-1])
 
         index_proxy = 0
         index_SoLanChay = 0
-        for email, twitterAcc, discordAcc, wallet_address in zip(dataEmail, dataTwitter, dataDiscord, dataWallet):
+        for email, twitterAcc, discordAcc, wallet_address, telePath in zip(dataEmail, dataTwitter, dataDiscord,
+                                                                           dataWallet, dataTelePath):
             time_try = 0
             index_SoLanChay = index_SoLanChay + 1
             while True:
@@ -412,7 +457,8 @@ def main():
                     try:
                         print('Đóng hết Telegram')
                         os.system("taskkill /f /im Telegram.exe")
-                    except:
+                    except Exception as err:
+                        print(err)
                         pass
                     time.sleep(2)
                     print('Xóa hết file telegram')
@@ -445,11 +491,11 @@ def main():
                     # -------------------------------------------
                     # copy telegram.exe
                     print('Copy telegram')
-                    CopyTelegram(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
+                    CopyTelegram(telepath=rf'{telePath}\Telegram.exe')
 
                     # Mở telegram ứng với index
                     print('Mở telegram với index')
-                    telegramApp = MoTelegramIndex(telepath=rf'{dataTelePath[index][0:-1]}\Telegram.exe')
+                    telegramApp = MoTelegramIndex(telepath=rf'{telePath}\Telegram.exe')
 
                     # Nhấn Hide
                     print('Nhấn HIDE')
@@ -471,7 +517,6 @@ def main():
                                          chrome_folder_path=configData.chrome_folder_path)
                     WAIT_TIMEOUT = 12
                     print(f'Tạo wait với thời gian chờ {WAIT_TIMEOUT}')
-                    wait = WebDriverWait(driver=driver, timeout=WAIT_TIMEOUT)
 
                     if driver == 1:
                         print('Tạo driver lỗi')
@@ -479,7 +524,7 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1995415273')
+                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1965360781')
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -496,10 +541,10 @@ def main():
                     print('Nhấn start')
                     clickUntilDisapper(imagePath='Image\\StartButton.png', gioiHan=3)
 
-                    # # Lỗi 2 lần
-                    # print('Đưa cmd lên đầu')
-                    # explore = OpenWindow('cmd')
-                    # bringToFrontControl(control=explore, tuKhoa='cmd')
+                    # Lỗi 2 lần
+                    print('Đưa cmd lên đầu')
+                    explore = OpenWindow('cmd')
+                    bringToFrontControl(control=explore, tuKhoa='cmd')
 
                     # Kiểm tra captcha
                     print('Kiểm tra giải toán')
@@ -595,37 +640,38 @@ def main():
                         print('Ghi lại vào file text result')
                         with open('result.txt', 'a') as file:
                             file.writelines(f'{twitterAcc.username}:1\n')
-                        captureScreen(number=f'success_{index}')
+                        captureScreen(number=f'success_{twitterAcc.username}')
                     else:
                         print('Không thành công')
                         with open('result.txt', 'a') as file:
                             file.writelines(f'{twitterAcc.username}:0\n')
-                        captureScreen(number=f'failed_{index}')
+                        captureScreen(number=f'failed_{twitterAcc.username}')
                     # Nhấn chọn bot
                     print('Xóa các thông tin')
 
-                    xoaThongTinTwitter(TwitterDataPath=configData.twitter_data_path,
-                                       username_delete=twitterAcc.username)
-                    XoaDataWallet(WalletPath=configData.wallet_path,
-                                  wallet_delete=wallet_address)
-
-                    xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
-                                       discord_delete_ID=discordAcc.username)
-
-                    xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
+                    # xoaThongTinTwitter(TwitterDataPath=configData.twitter_data_path,
+                    #                    username_delete=twitterAcc.username)
+                    # XoaDataWallet(WalletPath=configData.wallet_path,
+                    #               wallet_delete=wallet_address)
+                    #
+                    # xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
+                    #                    discord_delete_ID=discordAcc.username)
+                    #
+                    # xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
+                    xoaThongTinData(wl=wallet_address)
 
                     # Đóng hết telegram
                     try:
                         print('Đóng hết Telegram')
                         os.system("taskkill /f /im Telegram.exe")
-                    except:
+                    except Exception as err:
+                        print(err)
                         pass
                     time.sleep(2)
 
                     print('Xóa folder telegram')
-                    XoaFolder(rf'{dataTelePath[index][0:-1]}')
+                    XoaFolder(rf'{telePath}')
 
-                    index = index + 1
                     time.sleep(5)
                     break
                 except Exception as err:
@@ -637,33 +683,34 @@ def main():
                         print(err.args[0].value)
                         print('Ghi lại vào file text result')
                         with open('result.txt', 'a') as file:
-                            file.writelines(f'{twitterAcc.username}:0:{err}\n')
+                            file.writelines(f'{wallet_address}:0:{err}\n')
                             print('Lưu lại ảnh lỗi')
-                            captureScreen(number=f'failed_{index}')
+                            captureScreen(number=f'failed_{wallet_address}')
                         print('Xóa các thông tin')
-                        xoaThongTinTwitter(TwitterDataPath=configData.twitter_data_path,
-                                           username_delete=twitterAcc.username)
-                        XoaDataWallet(WalletPath=configData.wallet_path,
-                                      wallet_delete=wallet_address)
-                        xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
-                                           discord_delete_ID=discordAcc.username)
-
-                        xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
+                        # xoaThongTinTwitter(TwitterDataPath=configData.twitter_data_path,
+                        #                    username_delete=twitterAcc.username)
+                        # XoaDataWallet(WalletPath=configData.wallet_path,
+                        #               wallet_delete=wallet_address)
+                        # xoaThongTinDiscord(DiscordDataPath=configData.discord_data_path,
+                        #                    discord_delete_ID=discordAcc.username)
+                        #
+                        # xoaThongTinEmail(EmailDataPath=configData.gmail_data_path, email=email)
+                        xoaThongTinData(wl=wallet_address)
 
                         # Đóng hết telegram
                         try:
                             print('Đóng hết Telegram')
                             os.system("taskkill /f /im Telegram.exe")
-                        except:
+                        except Exception as err:
+                            print(err)
                             pass
                         time.sleep(2)
 
                         print('Xóa folder telegram')
-                        XoaFolder(rf'{dataTelePath[index][0:-1]}')
+                        XoaFolder(rf'{telePath}')
 
                         # XoaDataTelegram(TelegramPath=configData.telegram_data_path, telegram_delete=telegramUserName)
                         print('Chuyển sang acc khác')
-                        index = index + 1
                         break
                         # try:
                         #     quitAllDriver(driver=driver)
