@@ -210,7 +210,7 @@ def readDataTelePath(TelePath: str) -> Union[int, List[str]]:
 
 def readDataDiscord(DiscordDataPath: str) -> Union[int, List[DiscordData]]:
     try:
-        with open(DiscordDataPath, encoding="ISO-8859-1") as fileData:
+        with open(DiscordDataPath, encoding="utf-8", errors='ignore') as fileData:
             lines = fileData.readlines()
             listDiscordData = []
             for line in lines:
@@ -302,11 +302,11 @@ def xoaThongTinEmail(EmailDataPath: str, email: str) -> Union[int]:
 
 def xoaThongTinData(wl: str, DataPath='data.txt') -> Union[int]:
     try:
-        with open(DataPath) as fileData:
+        with open(DataPath, 'r', encoding='latin-1', errors='ignore') as fileData:
             lines = fileData.readlines()
-        with open(DataPath, "w") as f:
+        with open(DataPath, "w", encoding='latin-1', errors='ignore') as f:
             for line in lines:
-                if wl in line:
+                if wl not in line:
                     f.write(line)
             fileData.close()
     except Exception as err:
@@ -332,10 +332,35 @@ def main():
             return
         print('Đọc file config thành công')
 
+        # Đóng hết telegram
+        try:
+            print('Đóng hết Telegram')
+            os.system("taskkill /f /im Telegram.exe")
+            time.sleep(5)
+        except Exception as err:
+            print(err)
+            pass
+
         print('Tải về Telegram')
+        print('Xóa folder telegram')
+        XoaFolder(f'{os.getcwd()}\\Tele')
+
         with open('tele_url.txt', 'r') as file:
-            DowloadTele(file.read())
+            # Tạo driver
+            print('Đang tạo driver')
+            driver = open_driver(chromePath=configData.chrome_path, driverPath=configData.webdriverPath,
+                                 type_proxy=0,
+                                 chrome_folder_path=configData.chrome_folder_path)
+            WAIT_TIMEOUT = 12
+            print(f'Tạo wait với thời gian chờ {WAIT_TIMEOUT}')
+
+            if driver == 1:
+                print('Tạo driver lỗi')
+                return
+            print('Tạo driver thành công')
+            DowloadTeleWithChrome(url=file.read(), driver=driver)
             file.close()
+            quitAllDriver(driver=driver)
 
         print(configData.twitter_data_path, configData.proxy_data_path,
               configData.discord_data_path, configData.wallet_path, configData.gmail_data_path)
@@ -384,10 +409,6 @@ def main():
             print('Lỗi khi đọc thông tin discord')
             return
 
-        thuMucTelePath = getAllSubDir(fr'{os.getcwd()}\Tele\Tele')
-        soThuMucTelegram = len(thuMucTelePath)
-        print('Số thư mục telegram:', soThuMucTelegram)
-
         if os.path.exists(f'{os.getcwd()}\\data.txt'):
             print('Tìm thấy file data.txt ! Chạy từ file data')
             dataTwitter = []
@@ -395,14 +416,16 @@ def main():
             dataEmail = []
             dataWallet = []
             dataTelePath = []
-            lines = open(f'{os.getcwd()}\\data.txt', 'r')
+            with open(f'{os.getcwd()}\\data.txt', 'r', encoding='latin-1', errors='ignore') as file:
+                lines = file.readlines()
+                file.close()
             print(f'Số lần chạy {len(lines)}')
             for line in lines:
-                email, tw, discord, telePath, wl = line.split('|')
+                email, tw, discord, telePath, wl = line.split('::')
                 dataEmail.append(email)
-                dataDiscord.append(discord)
+                dataDiscord.append(DiscordData(username=discord, emailDiscord='', password=''))
                 dataWallet.append(wl[:-1])
-                dataTwitter.append(tw)
+                dataTwitter.append(TwitterData(username=tw, password='', emailDangKiIDO='', HoVaTenDangKiIDO=''))
                 dataTelePath.append(telePath)
             print('Đọc thông tin thành công')
         else:
@@ -413,6 +436,10 @@ def main():
             print('Số discord:', len(dataDiscord))
             print('Số email:', len(dataEmail))
             print('Số proxy:', len(dataProxy))
+
+            thuMucTelePath = getAllSubDir(fr'{os.getcwd()}\Tele\Tele')
+            soThuMucTelegram = len(thuMucTelePath)
+            print('Số thư mục telegram:', soThuMucTelegram)
 
             # Kiểm tra xem số thông tin đầu vào bằng nhau hay không
             number_acc = len(dataTwitter)
@@ -510,9 +537,10 @@ def main():
                     deleteContentFolder(f'{configData.chrome_folder_path}\Data\profile')
                     # Tạo driver
                     print('Đang tạo driver')
+                    print(dataProxy[index_proxy])
                     driver = open_driver(chromePath=configData.chrome_path, driverPath=configData.webdriverPath,
                                          type_proxy=0,
-                                         proxy=dataProxy[index_proxy][0:-1],
+                                         proxy=dataProxy[index_proxy],
                                          anti_captcha=None,
                                          chrome_folder_path=configData.chrome_folder_path)
                     WAIT_TIMEOUT = 12
@@ -524,7 +552,8 @@ def main():
                     print('Tạo driver thành công')
 
                     # Tới trang ref
-                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1965360781')
+                    # driver.get('https://t.me/ChumbiValleyAirdropBot?start=1965360781') # Acc 1
+                    driver.get('https://t.me/ChumbiValleyAirdropBot?start=1995415273')  # acc 2
 
                     # Nhấn chọn open in telegram
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\OpenInTelegramDestop.png', gioiHan=100)
@@ -554,6 +583,9 @@ def main():
                     if result != -1:
                         DienVaoChatEditVaNhanEnter(telegramApp=telegramApp, keys=result)
                         time.sleep(5)
+
+                    print('Đưa telegram lên đầu')
+                    bringToFrontControl(control=telegramApp, tuKhoa='Tele')
 
                     # Nhấn submit detail
                     print('Nhấn submit detail')
@@ -587,21 +619,25 @@ def main():
                     print('Nhấn No twitter')
                     detectImageAndClickLeftTopNewSingle(imagePath='Image\\No_Button.png', gioiHan=10)
 
-                    # Tìm Airdrop Detective
-                    print('Tìm Airdrop Detective')
-                    TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective')
+                    # Nhấn No
+                    print('Nhấn No Telegram')
+                    detectImageAndClickLeftTopNewSingle(imagePath='Image\\No_Button.png', gioiHan=10)
 
-                    # Nhấn Join
-                    print('Nhấn Join')
-                    clickUntilDisapper(imagePath='Image\\JoinChannel.png')
+                    # # Tìm Airdrop Detective
+                    # print('Tìm Airdrop Detective')
+                    # TimVaVaoTelegramVoiTuKhoa(telegramApp=telegramApp, tuKhoa='Airdrop Detective')
+                    #
+                    # # Nhấn Join
+                    # print('Nhấn Join')
+                    # clickUntilDisapper(imagePath='Image\\JoinChannel.png')
 
-                    # Về bot
-                    print('Về bot')
-                    QuayVeBot(telegramApp=telegramApp)
-
-                    # Nhấn Yes
-                    print("Nhấn Yes")
-                    clickUntilDisapper(imagePath='Image\\Yes_Button.png')
+                    # # Về bot
+                    # print('Về bot')
+                    # QuayVeBot(telegramApp=telegramApp)
+                    #
+                    # # Nhấn Yes
+                    # print("Nhấn Yes")
+                    # clickUntilDisapper(imagePath='Image\\Yes_Button.png')
 
                     # Điền ví
                     time.sleep(5)
@@ -638,14 +674,12 @@ def main():
                         # Thành Công ----------------------------------------
                         print('Thành Công')
                         print('Ghi lại vào file text result')
-                        with open('result.txt', 'a') as file:
-                            file.writelines(f'{twitterAcc.username}:1\n')
-                        captureScreen(number=f'success_{twitterAcc.username}')
+                        with open('result.txt', 'a', encoding='latin-1', errors='ignore') as file:
+                            file.writelines(f'{wallet_address}:1\n')
                     else:
                         print('Không thành công')
-                        with open('result.txt', 'a') as file:
-                            file.writelines(f'{twitterAcc.username}:0\n')
-                        captureScreen(number=f'failed_{twitterAcc.username}')
+                        with open('result.txt', 'a', encoding='latin-1', errors='ignore') as file:
+                            file.writelines(f'{wallet_address}:0\n')
                     # Nhấn chọn bot
                     print('Xóa các thông tin')
 
@@ -682,10 +716,9 @@ def main():
                         # ghi lại lí do lỗi
                         print(err.args[0].value)
                         print('Ghi lại vào file text result')
-                        with open('result.txt', 'a') as file:
+                        with open('result.txt', 'a', encoding='latin-1', errors='ignore') as file:
                             file.writelines(f'{wallet_address}:0:{err}\n')
                             print('Lưu lại ảnh lỗi')
-                            captureScreen(number=f'failed_{wallet_address}')
                         print('Xóa các thông tin')
                         # xoaThongTinTwitter(TwitterDataPath=configData.twitter_data_path,
                         #                    username_delete=twitterAcc.username)

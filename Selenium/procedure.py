@@ -1,9 +1,18 @@
 import os
 import shutil
 import subprocess
+import time
 import traceback
+import typing
+from pathlib import Path
+
+from selenium.webdriver.support.wait import WebDriverWait
+
 from InteractHelper import *
 from Interface.Error import TelegramError
+from Interface.DiscordData import DiscordData
+from Interface.TwitterData import TwitterData
+from activity import clickByXpath, download_wait, checkIsStartDownload
 
 
 def CopyTelegram(telepath):
@@ -155,6 +164,37 @@ def DowloadTele(url):
         file.close()
 
 
+def DowloadTeleWithChrome(url, driver: WebDriver):
+    print('Đi tới trang tải telegram')
+    driver.get(url)
+    downloads_path = f'{Path.home()}\Downloads'
+    print('Xóa hết file đợi download')
+    for file in getAllFiles(downloads_path):
+        if file.endswith('.crdownload'):
+            os.remove(file)
+
+    print('Getting file name')
+    fileNameXpath = '//span[@class="uc-name-size"]/a'
+    file_Element = driver.find_elements_by_xpath(xpath=fileNameXpath)
+    file_name = file_Element[0].text
+    print(f'Nhận được {file_name}')
+
+    while not checkIsStartDownload(downloads_path) and not download_wait(downloads_path, filename=file_name, test=True):
+        print('Nhấn tải về telegram')
+        downloadButtonXpath = '//a[contains(text() , "Download anyway")]'
+        clickByXpath(driver=driver, wait=WebDriverWait(driver=driver, timeout=5), click_clickable=True,
+                     xpath=downloadButtonXpath)
+        time.sleep(10)
+    print('Đang đợi tải về')
+    file_name_after_check = download_wait(path_to_downloads=downloads_path, filename=file_name)
+    print('Tải về thành công! Đang giải nén')
+    extractFile(f'{downloads_path}\\{file_name_after_check}', out_path=f'{os.getcwd()}\\Tele\\Tele')
+    with open('TelePath.txt', 'w') as file:
+        for folder in getAllSubDir(fr'{os.getcwd()}\Tele\Tele'):
+            file.write(f'{folder}\n')
+        file.close()
+
+
 def extractFile(path: str, out_path):
     import patoolib
     from pathlib import Path
@@ -162,11 +202,44 @@ def extractFile(path: str, out_path):
     patoolib.extract_archive(path, outdir=out_path)
 
 
-def TaoData(emails, tws, discords, telePaths, wls):
+def TaoData(emails: typing.List[str], tws: typing.List[TwitterData], discords: typing.List[DiscordData], telePaths,
+            wls):
     data = []
-    with open('data.txt', 'w') as file:
+    with open('data.txt', 'w', encoding='utf-8', errors='ignore') as file:
         for email, tw, discord, telePath, wl in zip(emails, tws, discords, telePaths, wls):
-            file.write(f'{email}|{tw}|{discord}|{telePath}|{wl}\n')
-            data.append(f'{email}|{tw}|{discord}|{telePath}|{wl}\n')
+            file.write(f'{email}::{tw.username}::{discord.username}::{telePath}::{wl}\n')
+            data.append(f'{email}::{tw.username}::{discord.username}::{telePath}::{wl}\n')
         file.close()
     return data
+
+
+def download_file_from_google_drive(id, destination):
+    URL = "https://docs.google.com/uc?export=download"
+
+    session = requests.Session()
+
+    response = session.get(URL, params={'id': id}, stream=True)
+    token = get_confirm_token(response)
+
+    if token:
+        params = {'id': id, 'confirm': token}
+        response = session.get(URL, params=params, stream=True)
+
+    save_response_content(response, destination)
+
+
+def get_confirm_token(response):
+    for key, value in response.cookies.items():
+        if key.startswith('download_warning'):
+            return value
+
+    return None
+
+
+def save_response_content(response, destination):
+    CHUNK_SIZE = 32768
+
+    with open(destination, "wb") as f:
+        for chunk in response.iter_content(CHUNK_SIZE):
+            if chunk:  # filter out keep-alive new chunks
+                f.write(chunk)

@@ -595,3 +595,8 @@ def clickUntilDisapper(imagePath, gioiHan=2):
 def getAllSubDir(path):
     subfolders = [f.path for f in os.scandir(path) if f.is_dir()]
     return subfolders
+
+
+def getAllFiles(path) -> typing.List[str]:
+    subfolders = [f.path for f in os.scandir(path)]
+    return subfolders
